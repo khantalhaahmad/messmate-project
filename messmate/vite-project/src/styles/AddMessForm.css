@@ -1,0 +1,66 @@
+.add-mess-form-container {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 400px;
+  margin: 20px auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-mess-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.add-mess-form .form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.add-mess-form label {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.add-mess-form input,
+.add-mess-form select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.add-mess-form input:focus,
+.add-mess-form select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.submit-btn:hover {
+  background-color: #0056b3;
+}
+
+.success-msg {
+  color: green;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.error-msg {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+}
