@@ -1,4 +1,6 @@
-# Logs
+# -----------------------------------------
+# ✅ Node / NPM / Yarn logs
+# -----------------------------------------
 logs
 *.log
 npm-debug.log*
@@ -7,22 +9,40 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependencies
+# -----------------------------------------
+# ✅ Dependencies (node_modules should never be committed)
+# -----------------------------------------
 node_modules/
 
-# Build outputs
+# -----------------------------------------
+# ✅ Build outputs (Render builds automatically from source)
+# -----------------------------------------
 dist/
 dist-ssr/
 build/
+vite-dist/
+coverage/
 
-# Environment files (important)
+# -----------------------------------------
+# ✅ Environment variables (keep secrets safe)
+# -----------------------------------------
 .env
 .env.local
+.env.development
+.env.production
+.env.*.local
 
-# Local configuration files
+# -----------------------------------------
+# ✅ Local configuration files
+# -----------------------------------------
 *.local
+*.cache
+.tmp
+.vite
 
-# Editor directories and files
+# -----------------------------------------
+# ✅ IDE / Editor / System files
+# -----------------------------------------
 .vscode/*
 !.vscode/extensions.json
 .idea/
@@ -32,3 +52,8 @@ build/
 *.njsproj
 *.sln
 *.sw?
+
+# -----------------------------------------
+# ✅ Misc
+# -----------------------------------------
+Thumbs.db
