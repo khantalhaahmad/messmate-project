@@ -1,16 +1,14 @@
 // src/services/api.js
 import axios from "axios";
 
-// ✅ Detect backend URL automatically
 const api = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:4000", // fallback to local
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// ✅ Attach token to every request (for authentication)
+// ✅ Attach token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
