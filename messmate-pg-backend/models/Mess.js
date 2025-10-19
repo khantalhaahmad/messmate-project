@@ -1,5 +1,14 @@
+// models/Mess.js
 import mongoose from "mongoose";
 import Counter from "./Counter.js"; // ✅ Import counter
+
+const menuItemSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  price: { type: Number, required: true },
+  image: { type: String },
+  description: { type: String },
+  isVeg: { type: Boolean, default: true },
+});
 
 const messSchema = new mongoose.Schema(
   {
@@ -10,7 +19,7 @@ const messSchema = new mongoose.Schema(
     },
     name: { type: String, required: true },
     location: { type: String, required: true },
-    menu: { type: Object, default: { items: [] } },
+    menu: [menuItemSchema], // ✅ Array of menu items
     price_range: String,
     rating: { type: Number, default: 0 },
     delivery_time: String,
@@ -28,7 +37,7 @@ messSchema.pre("validate", async function (next) {
       const counter = await Counter.findOneAndUpdate(
         { name: "mess_id" },
         { $inc: { seq: 1 } },
-        { new: true, upsert: true } // create if not exists
+        { new: true, upsert: true }
       );
       this.mess_id = counter.seq;
       next();

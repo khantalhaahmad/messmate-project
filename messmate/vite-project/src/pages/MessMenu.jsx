@@ -7,28 +7,38 @@ import FoodPopup from "../components/FoodPopup";
 import ViewCartButton from "../components/ViewCartButton";
 
 const MessMenu = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // mess_id (numeric id)
   const [mess, setMess] = useState(null);
+  const [menuItems, setMenuItems] = useState([]); // ✅ Stores the menu array
   const [selectedItem, setSelectedItem] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // 🟢 Use your backend URL
+  const backendURL = "http://localhost:4000";
+
+  // ✅ Fetch mess by ID
   useEffect(() => {
     let isMounted = true;
 
     const fetchMess = async () => {
       try {
-        const res = await axios.get(`http://localhost:4000/messes/id/${id}`);
-        if (isMounted) {
-          setMess((prev) => {
-            // Only update if data actually changed
-            if (JSON.stringify(prev) !== JSON.stringify(res.data)) {
-              return res.data;
-            }
-            return prev;
-          });
-          setLoading(false);
-        }
+        const res = await axios.get(`${backendURL}/messes/id/${id}`);
+        if (!isMounted) return;
+
+        const data = res.data;
+
+        // ✅ Always check for "menu.items" structure
+        const items =
+          data.menu?.items && Array.isArray(data.menu.items)
+            ? data.menu.items
+            : Array.isArray(data.menu)
+            ? data.menu
+            : [];
+
+        setMess(data);
+        setMenuItems(items);
+        setLoading(false);
       } catch (err) {
         console.error("❌ Error fetching mess:", err);
         setLoading(false);
@@ -36,15 +46,10 @@ const MessMenu = () => {
     };
 
     fetchMess();
-
-    // Optional refresh every 5 minutes (300000 ms)
-    const interval = setInterval(fetchMess, 300000);
-
     return () => {
       isMounted = false;
-      clearInterval(interval);
     };
-  }, [id]); // ✅ Only depend on 'id' (not 'mess')
+  }, [id]);
 
   const handleAddClick = useCallback((item) => {
     setSelectedItem(item);
@@ -57,7 +62,7 @@ const MessMenu = () => {
   }, []);
 
   if (loading) return <div className="loading">Loading menu...</div>;
-  if (!mess) return <div className="error">No menu found.</div>;
+  if (!mess) return <div className="error">No mess found.</div>;
 
   return (
     <div className="messmenu-container">
@@ -93,37 +98,51 @@ const MessMenu = () => {
       <h3 className="menu-section">Recommended for you</h3>
 
       <div className="messmenu-list">
-        {mess.menu?.items?.map((item, index) => (
-          <div key={index} className="messmenu-item">
-            <div className="messmenu-item-info">
-              <div className="veg-dot">
-                <span
-                  className={`dot ${
-                    item.veg ? "veg-dot-green" : "veg-dot-red"
-                  }`}
-                ></span>
+        {menuItems.length > 0 ? (
+          menuItems.map((item, index) => (
+            <div key={index} className="messmenu-item">
+              {/* ===== Left Info ===== */}
+              <div className="messmenu-item-info">
+                <div className="veg-dot">
+                  <span
+                    className={`dot ${
+                      item.isVeg === false ? "veg-dot-red" : "veg-dot-green"
+                    }`}
+                  ></span>
+                </div>
+
+                <h4>{item.name}</h4>
+                {item.price && <p className="price">₹{item.price}</p>}
+                {item.description && <p className="desc">{item.description}</p>}
               </div>
 
-              <h4>{item.name}</h4>
-              <p className="price">₹{item.price}</p>
-              <p className="desc">{item.desc}</p>
+              {/* ===== Right Image + Button ===== */}
+              <div className="messmenu-item-image">
+                <img
+                  src={
+                    item.image
+                      ? item.image.startsWith("http")
+                        ? item.image
+                        : `${import.meta.env.BASE_URL}assets/${item.image}`
+                      : `${import.meta.env.BASE_URL}assets/default.png`
+                  }
+                  alt={item.name}
+                  onError={(e) =>
+                    (e.target.src = `${import.meta.env.BASE_URL}assets/default.png`)
+                  }
+                />
+                <button className="add-btn" onClick={() => handleAddClick(item)}>
+                  ADD +
+                </button>
+              </div>
             </div>
-
-            <div className="messmenu-item-image">
-              <img
-                src={`/assets/${item.image}`}
-                alt={item.name}
-                onError={(e) => (e.target.src = "/assets/default.png")}
-              />
-              <button className="add-btn" onClick={() => handleAddClick(item)}>
-                ADD +
-              </button>
-            </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p className="no-menu">No menu items available.</p>
+        )}
       </div>
 
-      {/* ===== Popup Section ===== */}
+      {/* ===== Popup ===== */}
       {showPopup && selectedItem && (
         <FoodPopup item={selectedItem} onClose={handleClosePopup} />
       )}

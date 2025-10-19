@@ -16,13 +16,11 @@ router.post("/", authMiddleware, async (req, res) => {
       return res.status(403).json({ message: "Only owners can add messes." });
     }
 
-    // ✅ Prevent duplicate mess
     const existingMess = await Mess.findOne({ name: req.body.name });
     if (existingMess) {
       return res.status(400).json({ message: "Mess with this name already exists." });
     }
 
-    // ✅ Auto-increment mess_id
     const lastMess = await Mess.findOne().sort({ mess_id: -1 });
     const newMessId = lastMess ? lastMess.mess_id + 1 : 1;
 
@@ -32,10 +30,7 @@ router.post("/", authMiddleware, async (req, res) => {
       owner_id: req.user._id,
     });
 
-    res.status(201).json({
-      message: "✅ Mess created successfully",
-      mess,
-    });
+    res.status(201).json({ message: "✅ Mess created successfully", mess });
   } catch (error) {
     console.error("💥 Error creating mess:", error);
     res.status(500).json({ message: "Failed to create mess", error: error.message });
@@ -53,9 +48,9 @@ router.get("/", async (req, res) => {
     if (!messes.length) {
       return res.status(404).json({ message: "No messes found" });
     }
+
     res.status(200).json(messes);
   } catch (error) {
-    console.error("💥 Error fetching messes:", error);
     res.status(500).json({ message: "Failed to fetch messes", error: error.message });
   }
 });
@@ -70,6 +65,7 @@ router.get("/id/:mess_id", async (req, res) => {
     const mess = await Mess.findOne({ mess_id: Number(req.params.mess_id) });
     if (!mess) return res.status(404).json({ message: "❌ Mess not found" });
 
+    // ✅ Return as-is (menu.items stays intact)
     res.status(200).json(mess);
   } catch (error) {
     console.error("💥 Error fetching mess by mess_id:", error);
@@ -79,56 +75,78 @@ router.get("/id/:mess_id", async (req, res) => {
 
 /**
  * ============================================================
- * 🟠 Update Mess by mess_id (Owner or Admin)
+ * 🍽️ Add Menu Item (Owner/Admin)
  * ============================================================
  */
-router.put("/id/:mess_id", authMiddleware, async (req, res) => {
+router.post("/id/:mess_id/menu", authMiddleware, async (req, res) => {
   try {
     const mess = await Mess.findOne({ mess_id: Number(req.params.mess_id) });
     if (!mess) return res.status(404).json({ message: "❌ Mess not found" });
 
-    if (req.user.role !== "admin" && mess.owner_id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "⚠️ Not authorized to update this mess." });
+    if (
+      req.user.role !== "admin" &&
+      mess.owner_id.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({ message: "⚠️ Not authorized to add menu items." });
     }
 
-    const updatedMess = await Mess.findOneAndUpdate(
-      { mess_id: Number(req.params.mess_id) },
-      req.body,
-      { new: true }
-    );
+    const newItem = {
+      name: req.body.name,
+      price: req.body.price,
+      image: req.body.image,
+      description: req.body.description || "",
+      isVeg: req.body.isVeg,
+    };
 
-    res.status(200).json({
-      message: "✅ Mess updated successfully",
-      mess: updatedMess,
+    // ✅ Always push into menu.items
+    if (!mess.menu || !Array.isArray(mess.menu.items)) {
+      mess.menu = { items: [] };
+    }
+    mess.menu.items.push(newItem);
+
+    await mess.save();
+
+    res.status(201).json({
+      message: "✅ Menu item added successfully",
+      menu: mess.menu.items,
     });
   } catch (error) {
-    console.error("💥 Error updating mess:", error);
-    res.status(500).json({ message: "Failed to update mess", error: error.message });
+    console.error("💥 Error adding menu item:", error);
+    res.status(500).json({ message: "Failed to add menu item", error: error.message });
   }
 });
 
 /**
  * ============================================================
- * 🔴 Delete Mess by mess_id (Owner or Admin)
+ * 🗑️ Delete Menu Item (Owner/Admin)
  * ============================================================
  */
-router.delete("/id/:mess_id", authMiddleware, async (req, res) => {
+router.delete("/id/:mess_id/menu/:itemIndex", authMiddleware, async (req, res) => {
   try {
     const mess = await Mess.findOne({ mess_id: Number(req.params.mess_id) });
     if (!mess) return res.status(404).json({ message: "❌ Mess not found" });
 
-    if (req.user.role !== "admin" && mess.owner_id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "⚠️ Not authorized to delete this mess." });
+    if (
+      req.user.role !== "admin" &&
+      mess.owner_id.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({ message: "⚠️ Not authorized to delete menu items." });
     }
 
-    await Mess.deleteOne({ mess_id: Number(req.params.mess_id) });
+    if (!mess.menu?.items || !mess.menu.items.length) {
+      return res.status(400).json({ message: "No menu items to delete." });
+    }
+
+    mess.menu.items.splice(req.params.itemIndex, 1);
+    await mess.save();
+
     res.status(200).json({
-      message: "🗑️ Mess deleted successfully",
-      deletedId: req.params.mess_id,
+      message: "🗑️ Menu item deleted successfully",
+      menu: mess.menu.items,
     });
   } catch (error) {
-    console.error("💥 Error deleting mess:", error);
-    res.status(500).json({ message: "Failed to delete mess", error: error.message });
+    console.error("💥 Error deleting menu item:", error);
+    res.status(500).json({ message: "Failed to delete menu item", error: error.message });
   }
 });
 
