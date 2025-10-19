@@ -1,4 +1,3 @@
-// src/components/FoodPopup.jsx
 import React, { useState, useEffect } from "react";
 import { useCart } from "../pages/CartContext";
 import "../styles/FoodPopup.css";
@@ -6,12 +5,11 @@ import "../styles/FoodPopup.css";
 const FoodPopup = ({ item, onClose }) => {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [visible, setVisible] = useState(false); // 👈 controls fade-in
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Trigger smooth show animation
-    const timer = setTimeout(() => setVisible(true), 10);
-    return () => clearTimeout(timer);
+    // Smooth fade-in without flicker
+    requestAnimationFrame(() => setVisible(true));
   }, []);
 
   if (!item) return null;
@@ -76,4 +74,5 @@ const FoodPopup = ({ item, onClose }) => {
   );
 };
 
-export default FoodPopup;
+// ✅ Prevent unnecessary re-renders and blinking
+export default React.memo(FoodPopup);

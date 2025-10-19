@@ -1,4 +1,3 @@
-// src/pages/MessMenu.jsx
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -14,17 +13,20 @@ const MessMenu = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Deep comparison to prevent unnecessary re-renders
-  const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-
   useEffect(() => {
     let isMounted = true;
 
     const fetchMess = async () => {
       try {
         const res = await axios.get(`http://localhost:4000/messes/id/${id}`);
-        if (isMounted && !isEqual(res.data, mess)) {
-          setMess(res.data);
+        if (isMounted) {
+          setMess((prev) => {
+            // Only update if data actually changed
+            if (JSON.stringify(prev) !== JSON.stringify(res.data)) {
+              return res.data;
+            }
+            return prev;
+          });
           setLoading(false);
         }
       } catch (err) {
@@ -35,27 +37,21 @@ const MessMenu = () => {
 
     fetchMess();
 
-    // Optional refresh every 5 minutes
+    // Optional refresh every 5 minutes (300000 ms)
     const interval = setInterval(fetchMess, 300000);
+
     return () => {
       isMounted = false;
       clearInterval(interval);
     };
-  }, [id, mess]);
+  }, [id]); // ✅ Only depend on 'id' (not 'mess')
 
-  // ✅ Popup open handler (clean and stable)
-  const handleAddClick = useCallback(
-    (item) => {
-      console.log("🟢 Opening popup for:", item.name);
-      setSelectedItem(item);
-      setShowPopup(true);
-    },
-    [] // no dependency → avoids re-renders
-  );
+  const handleAddClick = useCallback((item) => {
+    setSelectedItem(item);
+    setShowPopup(true);
+  }, []);
 
-  // ✅ Popup close handler
   const handleClosePopup = useCallback(() => {
-    console.log("🔴 Closing popup");
     setShowPopup(false);
     setSelectedItem(null);
   }, []);

@@ -20,7 +20,7 @@ const app = express();
 
 // ✅ Dynamic CORS setup (works for localhost & Render)
 const allowedOrigins = [
-  "http://localhost:5173", // Local dev
+  "http://localhost:5176", // Local dev
   process.env.FRONTEND_URL, // Deployed frontend
 ];
 
