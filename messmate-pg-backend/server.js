@@ -1,4 +1,5 @@
 // server.js
+import cors from "cors";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -18,43 +19,46 @@ connectDB();
 
 const app = express();
 
-// ✅ Dynamic CORS setup (works for localhost & Render)
-const allowedOrigins = [
-  "http://localhost:5176", // Local dev
-  process.env.FRONTEND_URL, // Deployed frontend
-];
+// // ✅ Allowed origins (local + deployed frontend)
+// const allowedOrigins = [
+//   "http://localhost:5173", // Local React app
+//   "https://messmate-frontendpart3.onrender.com", // Deployed frontend (Render)
+// ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.log("❌ Blocked by CORS:", origin);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+// // ✅ CORS setup
+// app.use(
+//   cors({
+//     origin: (origin, callback) => {
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         console.log("❌ Blocked by CORS:", origin);
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//   })
+// );
+app.use(cors({origin:'https://messmate-frontendpart3.onrender.com',credentials:true}));
 
-// ✅ Parse incoming requests
+// ✅ Middleware for parsing requests
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// ✅ Request logger (helpful for debugging)
+// ✅ Request logger for debugging
 app.use((req, res, next) => {
   console.log(`➡️  ${req.method} ${req.originalUrl}`);
   next();
 });
 
-// ✅ Debug route
+// ✅ Test route to verify backend
 app.post("/test-body", (req, res) => {
   console.log("📦 Body received at /test-body:", req.body);
   res.json({ received: req.body });
 });
 
-// ✅ Register all routes
+// ✅ Register API routes
 app.use("/auth", authRoutes);
 app.use("/messes", messRoutes);
 app.use("/orders", orderRoutes);
@@ -68,7 +72,7 @@ app.get("/", (req, res) => {
   res.send("✅ MessMate backend is running successfully!");
 });
 
-// ✅ Dynamic PORT (Render provides PORT automatically)
+// ✅ Dynamic PORT (Render assigns automatically)
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT} (${process.env.NODE_ENV || "development"} mode)`);
