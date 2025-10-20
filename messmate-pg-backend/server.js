@@ -1,5 +1,4 @@
 // server.js
-import cors from "cors";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -19,28 +18,28 @@ connectDB();
 
 const app = express();
 
-// // ✅ Allowed origins (local + deployed frontend)
-// const allowedOrigins = [
-//   "http://localhost:5173", // Local React app
-//   "https://messmate-frontendpart3.onrender.com", // Deployed frontend (Render)
-// ];
+// ✅ Allowed origins (local + deployed)
+const allowedOrigins = [
+  "http://localhost:5174", // Local frontend (Vite default)
+  "http://localhost:5173", // Optional: if you use a different Vite port
+  "https://messmate-frontendpart3.onrender.com", // Deployed frontend
+];
 
-// // ✅ CORS setup
-// app.use(
-//   cors({
-//     origin: (origin, callback) => {
-//       if (!origin || allowedOrigins.includes(origin)) {
-//         callback(null, true);
-//       } else {
-//         console.log("❌ Blocked by CORS:", origin);
-//         callback(new Error("Not allowed by CORS"));
-//       }
-//     },
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//   })
-// );
-app.use(cors({origin:'https://messmate-frontendpart3.onrender.com',credentials:true}));
+// ✅ CORS setup (handles both local & production)
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("❌ Blocked by CORS:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 
 // ✅ Middleware for parsing requests
 app.use(express.json({ limit: "10mb" }));
