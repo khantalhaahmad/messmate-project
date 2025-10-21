@@ -197,5 +197,9 @@
     transform: translateY(6px);
   }
 }
-
+.recommended-section-wrapper {
+  margin-top: 60px;
+  margin-bottom: 60px;
+  background-color: #fff;
+}
 }

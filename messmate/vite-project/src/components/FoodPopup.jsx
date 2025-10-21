@@ -1,113 +1,107 @@
+// src/components/FoodPopup.jsx
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { useCart } from "../pages/CartContext";
+import { useCart } from "../Context/CartContext";
 import "../styles/FoodPopup.css";
 
-const FoodPopup = ({ item, onClose }) => {
+const FoodPopup = ({ item, mess, onClose, onAdd }) => {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [visible, setVisible] = useState(false);
-  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [show, setShow] = useState(false); // for fade animation
 
+  // ✅ Stable mount animation (no blinking)
   useEffect(() => {
-    setTimeout(() => setVisible(true), 10);
+    const timer = requestAnimationFrame(() => setShow(true));
+    return () => cancelAnimationFrame(timer);
   }, []);
 
   if (!item) return null;
 
-  const handleAdd = () => {
-    addToCart({ ...item, quantity });
-    handleCloseAll();
+  // ✅ Unified image resolver
+  const getImagePath = (imagePath, itemName) => {
+    if (imagePath) {
+      if (imagePath.startsWith("http")) return imagePath;
+      if (imagePath.startsWith("/assets/")) return imagePath;
+      if (imagePath.startsWith("assets/")) return `/${imagePath}`;
+      if (imagePath.startsWith("./assets/")) return imagePath.replace("./", "/");
+      return `/assets/${imagePath}`;
+    }
+    // fallback from item name
+    const formatted = itemName.toLowerCase().replace(/\s+/g, "").replace(/[()]/g, "");
+    return `/assets/${formatted}.png`;
   };
 
-  const handleCloseAll = () => {
-    setConfirmVisible(false);
-    setVisible(false);
+  const imageSrc = getImagePath(item.image, item.name);
+
+  // ✅ Add to cart logic
+  const handleAdd = () => {
+    const validMessId =
+      mess?.mess_id || item?.mess_id || "unknown";
+
+    const itemToAdd = {
+      ...item,
+      mess_id: validMessId,
+      quantity,
+    };
+
+    addToCart(itemToAdd);
+    setShow(false);
     setTimeout(onClose, 200);
   };
 
-  const handleAttemptClose = (e) => {
-    e.stopPropagation();
-    setConfirmVisible(true);
+  // ✅ Smooth close
+  const handleClose = () => {
+    setShow(false);
+    setTimeout(onClose, 200);
   };
 
+  // ✅ Render portal (only once)
   return ReactDOM.createPortal(
-    <>
-      {/* ===== Food Popup (Centered Vertical) ===== */}
-      {visible && (
-        <div className="food-popup-overlay" onClick={handleAttemptClose}>
-          <div
-            className="food-popup-centered"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button className="popup-close" onClick={handleAttemptClose}>
-              ✕
-            </button>
+    <div
+      className={`popup-overlay ${show ? "show" : ""}`}
+      onClick={handleClose}
+    >
+      <div
+        className={`popup-card ${show ? "show" : ""}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className="popup-close" onClick={handleClose}>
+          ✕
+        </button>
 
-            <div className="food-popup-content-vertical">
-              <img
-                src={
-                  item.image
-                    ? `/assets/${item.image}`
-                    : "/assets/default.png"
-                }
-                alt={item.name}
-                className="food-popup-img-vertical"
-                onError={(e) => (e.target.src = "/assets/default.png")}
-              />
+        <div className="popup-content">
+          <img
+            src={imageSrc}
+            alt={item.name}
+            className="popup-image"
+            onError={(e) => (e.target.src = "/assets/default-food.png")}
+          />
 
-              <h2 className="food-popup-title">{item.name}</h2>
-              <p className="food-popup-price">₹{item.price}</p>
+          <h3 className="popup-name">{item.name}</h3>
+          <p className="popup-price">₹{item.price}</p>
 
-              <div className="quantity-control">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="qty-btn minus"
-                >
-                  −
-                </button>
-                <span className="qty">{quantity}</span>
-                <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="qty-btn plus"
-                >
-                  +
-                </button>
-              </div>
-
-              <button className="add-item-btn-vertical" onClick={handleAdd}>
-                Add item – ₹{(item.price * quantity).toFixed(2)}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===== Confirmation Popup ===== */}
-      {confirmVisible &&
-        ReactDOM.createPortal(
-          <div className="confirm-overlay" onClick={() => setConfirmVisible(false)}>
-            <div
-              className="confirm-popup"
-              onClick={(e) => e.stopPropagation()}
+          <div className="quantity-controls">
+            <button
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              className="qty-btn minus"
             >
-              <h3>Unsaved Item</h3>
-              <p>
-                Do you want to add <strong>{item.name}</strong> to your cart before closing?
-              </p>
-              <div className="confirm-buttons">
-                <button className="yes-btn" onClick={handleAdd}>
-                  ✅ Yes, Add
-                </button>
-                <button className="no-btn" onClick={handleCloseAll}>
-                  ❌ No
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
-    </>,
+              −
+            </button>
+            <span className="qty">{quantity}</span>
+            <button
+              onClick={() => setQuantity((q) => q + 1)}
+              className="qty-btn plus"
+            >
+              +
+            </button>
+          </div>
+
+          <button className="popup-add-btn" onClick={handleAdd}>
+            Add item – ₹{(item.price * quantity).toFixed(2)}
+          </button>
+        </div>
+      </div>
+    </div>,
     document.body
   );
 };

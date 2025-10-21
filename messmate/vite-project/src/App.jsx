@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./Context/AuthContext";
-import { CartProvider } from "./pages/CartContext"; // ✅ fixed
+import { CartProvider } from "./Context/CartContext";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -15,7 +15,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import DashboardRouter from "./pages/DashboardRouter";
 import MessMenu from "./pages/MessMenu";
-import Checkout from "./pages/Checkout"; // ✅ this stays same
+import Checkout from "./pages/Checkout";
 
 function App() {
   return (
@@ -30,7 +30,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
 
-              {/* ➕ Add Mess Page */}
+              {/* ➕ Add Mess Page (Protected) */}
               <Route
                 path="/addmess"
                 element={
@@ -40,13 +40,13 @@ function App() {
                 }
               />
 
-              {/* 🍱 Mess Menu Page */}
-              <Route path="/messes/id/:id" element={<MessMenu />} />
+              {/* 🍱 Mess Menu Page (Important Fix: match backend param) */}
+              <Route path="/messes/id/:mess_id" element={<MessMenu />} />
 
-              {/* 🛒 Checkout */}
+              {/* 🛒 Checkout Page */}
               <Route path="/checkout" element={<Checkout />} />
 
-              {/* 🔒 Dashboard */}
+              {/* 🔒 Owner Dashboard */}
               <Route
                 path="/dashboard"
                 element={

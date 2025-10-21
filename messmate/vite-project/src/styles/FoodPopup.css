@@ -1,356 +1,117 @@
-/* ===== Overlay ===== */
-.food-popup-overlay {
+.popup-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
-  animation: fadeIn 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 9999;
 }
 
-/* ===== Popup Card (Vertical Layout) ===== */
-.food-popup-centered {
+.popup-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.popup-card {
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-  width: 90%;
-  max-width: 420px;
-  padding: 28px 22px 30px;
+  padding: 25px 30px;
+  border-radius: 18px;
+  width: 320px;
+  max-width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   position: relative;
-  animation: popIn 0.25s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  transform: translateY(10px) scale(0.97);
+  opacity: 0;
+  transition: all 0.25s ease;
+}
+
+.popup-card.show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
 }
 
 .popup-close {
   position: absolute;
-  top: 12px;
-  right: 16px;
+  top: 10px;
+  right: 10px;
   background: transparent;
   border: none;
-  font-size: 22px;
-  color: #333;
+  font-size: 20px;
   cursor: pointer;
 }
 
-/* ===== Image on Top ===== */
-.food-popup-img-vertical {
-  width: 150px;
-  height: 150px;
-  border-radius: 12px;
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.popup-image {
+  width: 140px;
+  height: 120px;
   object-fit: cover;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  margin-bottom: 14px;
+  border-radius: 12px;
+  margin-bottom: 10px;
 }
 
-/* ===== Food Info ===== */
-.food-popup-title {
-  font-size: 20px;
+.popup-name {
+  font-size: 1.2rem;
   font-weight: 600;
-  text-align: center;
-  margin-bottom: 4px;
-  color: #222;
+  margin-bottom: 5px;
 }
 
-.food-popup-price {
-  font-size: 18px;
-  color: #00a884;
-  text-align: center;
-  margin-bottom: 14px;
+.popup-price {
+  font-size: 1rem;
+  color: #16a34a;
+  margin-bottom: 15px;
 }
 
-/* ===== Quantity Controls ===== */
-.quantity-control {
+.quantity-controls {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .qty-btn {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: none;
-  background: #ff4b4b;
+  background: #ef4444;
   color: #fff;
   font-size: 20px;
+  font-weight: bold;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .qty-btn:hover {
-  background: #e03d3d;
-  transform: scale(1.05);
+  background: #dc2626;
 }
 
 .qty {
-  font-size: 17px;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #222;
+  color: #333;
 }
 
-/* ===== Add Button ===== */
-.add-item-btn-vertical {
-  background: #00a884;
-  color: white;
+.popup-add-btn {
+  background: #16a34a;
+  color: #fff;
   border: none;
-  padding: 12px 20px;
-  font-size: 16px;
-  border-radius: 10px;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
   width: 100%;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition: background 0.2s ease;
 }
 
-.add-item-btn-vertical:hover {
-  background: #009877;
-  transform: scale(1.03);
-}
-
-/* ===== Confirmation Popup ===== */
-.confirm-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 3000;
-}
-
-.confirm-popup {
-  background: #fff;
-  padding: 24px 28px;
-  border-radius: 12px;
-  text-align: center;
-  width: 90%;
-  max-width: 360px;
-  box-shadow: 0 8px 35px rgba(0, 0, 0, 0.35);
-  animation: popIn 0.25s ease;
-}
-
-/* ===== Buttons ===== */
-.confirm-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.yes-btn,
-.no-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.yes-btn {
-  background: #00a884;
-  color: #fff;
-}
-.no-btn {
-  background: #ff4b4b;
-  color: #fff;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes popIn {
-  from {
-    transform: scale(0.9);
-    opacity: 0.7;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* ===== Confirmation Popup ===== */
-.confirm-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 3000;
-}
-
-.confirm-popup {
-  background: #fff;
-  padding: 24px 28px;
-  border-radius: 12px;
-  text-align: center;
-  width: 90%;
-  max-width: 360px;
-  box-shadow: 0 8px 35px rgba(0, 0, 0, 0.35);
-  animation: popIn 0.25s ease;
-}
-
-.confirm-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.yes-btn,
-.no-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.yes-btn {
-  background: #00a884;
-  color: #fff;
-}
-
-.yes-btn:hover {
-  background: #009877;
-  transform: scale(1.05);
-}
-
-.no-btn {
-  background: #ff4b4b;
-  color: #fff;
-}
-
-.no-btn:hover {
-  background: #e03d3d;
-  transform: scale(1.05);
-}
-
-/* ===== Animations ===== */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes popIn {
-  from {
-    transform: scale(0.95);
-    opacity: 0.6;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-
-/* ===== Confirmation Popup Overlay ===== */
-.confirm-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 3000;
-  animation: fadeIn 0.25s ease;
-}
-
-/* ===== Confirmation Popup ===== */
-.confirm-popup {
-  background: #fff;
-  padding: 24px 28px;
-  border-radius: 12px;
-  text-align: center;
-  width: 90%;
-  max-width: 360px;
-  box-shadow: 0 8px 35px rgba(0, 0, 0, 0.35);
-  animation: popIn 0.25s ease;
-}
-
-.confirm-popup h3 {
-  font-size: 18px;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #222;
-}
-
-.confirm-popup p {
-  font-size: 15px;
-  color: #555;
-  margin-bottom: 18px;
-}
-
-.confirm-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
-
-.yes-btn,
-.no-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.yes-btn {
-  background: #00a884;
-  color: white;
-}
-.yes-btn:hover {
-  background: #009877;
-  transform: scale(1.05);
-}
-
-.no-btn {
-  background: #ff4b4b;
-  color: white;
-}
-.no-btn:hover {
-  background: #e03d3d;
-  transform: scale(1.05);
-}
-
-/* ===== Animations ===== */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes popIn {
-  from {
-    transform: scale(0.9);
-    opacity: 0.6;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+.popup-add-btn:hover {
+  background: #15803d;
 }

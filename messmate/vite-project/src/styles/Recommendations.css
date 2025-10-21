@@ -1,0 +1,142 @@
+/* ========== RECOMMENDED SECTION (GRID STYLE) ========== */
+
+.recommendation-section {
+  width: 100%;
+  padding: 40px 60px;
+  margin: 40px 0;
+  background: #fff;
+}
+
+.recommendation-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recommendation-title::before {
+  content: "🍽️";
+  font-size: 1.8rem;
+}
+
+/* GRID LAYOUT */
+.recommendation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
+}
+
+/* CARD DESIGN */
+.recommendation-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.recommendation-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+/* IMAGE */
+.recommendation-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  background: #f6f6f6;
+}
+
+/* RATING BADGE */
+.recommendation-rating-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #00a884;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+/* INFO */
+.recommendation-info {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.recommendation-info h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.recommendation-info p {
+  font-size: 0.85rem;
+  color: #777;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  min-height: 38px;
+}
+
+/* PRICE + BUTTON */
+.recommendation-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.recommendation-price {
+  font-weight: 600;
+  color: #e63946;
+  font-size: 0.95rem;
+}
+
+.add-btn {
+  background-color: #ff4b4b;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.add-btn:hover {
+  background-color: #e03e3e;
+}
+
+/* EMPTY STATE */
+.no-recommendations {
+  text-align: center;
+  color: #666;
+  font-size: 1rem;
+  padding: 30px 0;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .recommendation-section {
+    padding: 20px;
+  }
+
+  .recommendation-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 18px;
+  }
+
+  .recommendation-card img {
+    height: 120px;
+  }
+}

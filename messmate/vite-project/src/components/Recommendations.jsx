@@ -1,57 +1,104 @@
-// src/components/Recommendations.jsx
-import React, { useEffect, useState, useContext } from "react";
+// src/components/RecommendedSection.jsx
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { AuthContext } from "../Context/AuthContext";
+import "../styles/Recommendations.css";
+import FoodPopup from "../components/FoodPopup";
+import ViewCartButton from "../components/ViewCartButton";
 
-const Recommendations = () => {
-  const [recommendations, setRecommendations] = useState([]);
-  const { user } = useContext(AuthContext); // user._id should be available
+const RecommendedSection = ({ userId }) => {
+  const [recommendedFoods, setRecommendedFoods] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
 
+  const backendURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+
+  // ✅ Fetch recommendations
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const res = await axios.get(
-          `https://messmate-backend.onrender.com/recommendations/${user._id}`
-        );
-        setRecommendations(res.data.data);
-      } catch (err) {
-        console.error("Error fetching recommendations:", err);
+        const res = await axios.get(`${backendURL}/api/recommendations/${userId || "guest"}`);
+        setRecommendedFoods(res.data.data || []);
+      } catch (error) {
+        console.error("❌ Error fetching recommendations:", error);
+      } finally {
+        setLoading(false);
       }
     };
-    if (user?._id) fetchRecommendations();
-  }, [user]);
+
+    fetchRecommendations();
+  }, [backendURL, userId]);
+
+  // ✅ Handle "Add +" click
+  const handleAddClick = useCallback((food) => {
+    setSelectedItem(food);
+    setShowPopup(true);
+  }, []);
+
+  const handleClosePopup = useCallback(() => {
+    setSelectedItem(null);
+    setShowPopup(false);
+  }, []);
+
+  if (loading) return <p className="loading">Loading recommendations...</p>;
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-3">
-        🍽️ Recommended for You
-      </h2>
+    <div className="recommendation-section">
+      <h2 className="recommendation-title">🍽️ Recommended for You</h2>
 
-      {recommendations.length === 0 ? (
-        <p className="text-gray-500">No recommendations available yet.</p>
+      {recommendedFoods.length === 0 ? (
+        <p className="no-recommendations">No recommendations available yet.</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {recommendations.map((mess) => (
-            <div
-              key={mess._id}
-              className="bg-white rounded-2xl shadow-md p-3 hover:scale-105 transition-transform"
-            >
-              <img
-                src={mess.imageUrl || "/default-food.jpg"}
-                alt={mess.name}
-                className="rounded-xl w-full h-36 object-cover mb-2"
-              />
-              <h3 className="font-semibold text-lg">{mess.name}</h3>
-              <p className="text-gray-500 text-sm">{mess.location}</p>
-              <p className="text-sm mt-1">
-                ⭐ {mess.rating || "4.0"} | {mess.menu?.length || 0} Items
-              </p>
+        <div className="recommendation-grid">
+          {recommendedFoods.map((food, index) => (
+            <div key={index} className="recommendation-card">
+              <div className="recommendation-image-wrapper">
+                <img
+                  src={
+                    food.image?.startsWith("http")
+                      ? food.image
+                      : `${import.meta.env.BASE_URL}assets/${food.image || "default.png"}`
+                  }
+                  alt={food.name}
+                  onError={(e) =>
+                    (e.target.src = `${import.meta.env.BASE_URL}assets/default.png`)
+                  }
+                />
+                <span className="recommendation-rating-badge">
+                  {food.rating?.toFixed(1) || "4.0"}
+                </span>
+              </div>
+
+              <div className="recommendation-info">
+                <h4>{food.name}</h4>
+                <p>{food.description || "Delicious and fresh meal"}</p>
+                <div className="recommendation-bottom">
+                  <span className="recommendation-price">₹{food.price}</span>
+                  <button className="add-btn" onClick={() => handleAddClick(food)}>
+                    ADD +
+                  </button>
+                </div>
+              </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* ✅ Popup opens when user clicks ADD */}
+      {showPopup && selectedItem && (
+        <FoodPopup
+          item={selectedItem}
+          mess={{
+            name: selectedItem.mess_name || "Recommended Mess",
+            mess_id: selectedItem.mess_id || "N/A",
+          }}
+          onClose={handleClosePopup}
+        />
+      )}
+
+      <ViewCartButton />
     </div>
   );
 };
 
-export default Recommendations;
+export default RecommendedSection;

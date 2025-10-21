@@ -1,5 +1,4 @@
-// src/pages/Login.jsx
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { AuthContext } from "../Context/AuthContext";
@@ -10,24 +9,33 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login, user } = useContext(AuthContext);
+
+  // ✅ Auto redirect once user data loads in context
+  useEffect(() => {
+    if (user?.role === "student" || user?.role === "owner" || user?.role === "messowner") {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      // ✅ Backend login API
       const res = await api.post("/auth/login", { identifier, password });
       const { user, token } = res.data;
 
-      // ✅ Save role, user, and token
-      localStorage.setItem("role", user.role); // e.g. "student" or "owner"
-      login(user, token);
+      if (!token || !user) {
+        throw new Error("Invalid login response from server");
+      }
 
-      alert(`Welcome ${user.name || "User"}!`);
-      navigate("/dashboard", { replace: true }); // handled by DashboardRouter
+      // ✅ Save user & token in context
+      login({ user, token });
+
+      alert(`✅ Welcome back, ${user.name}!`);
+      // Redirect happens automatically via useEffect
     } catch (err) {
-      console.error("Login error:", err);
+      console.error("❌ Login error:", err);
       setError(err.response?.data?.message || "Login failed. Please try again.");
     }
   };
