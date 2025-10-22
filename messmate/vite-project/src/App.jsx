@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./Context/AuthContext";
 import { CartProvider } from "./Context/CartContext";
 
@@ -32,93 +27,89 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
-          {/* 🧭 Floating UI Elements (Global) */}
-          <FloatingButtons />
+        {/* 🧭 Floating UI Elements (Global) */}
+        <FloatingButtons />
 
-          <main>
-            <Routes>
-              {/* 🌐 Public Routes */}
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
+        <main>
+          <Routes>
+            {/* 🌐 Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
 
-              {/* 🍱 Mess Menu (Student/Visitor) */}
-              <Route path="/messes/:mess_id" element={<MessMenu />} />
+            {/* 🍱 Mess Menu (Student/Visitor) */}
+            <Route path="/messes/:mess_id" element={<MessMenu />} />
 
-              {/* 🛒 Checkout */}
-              <Route path="/checkout" element={<Checkout />} />
+            {/* 🛒 Checkout */}
+            <Route path="/checkout" element={<Checkout />} />
 
-              {/* ➕ Add Mess (Only for Owners) */}
-              <Route
-                path="/addmess"
-                element={
-                  <ProtectedRoute allowedRoles={["owner"]}>
-                    <AddMessForm />
-                  </ProtectedRoute>
-                }
-              />
+            {/* ➕ Add Mess (Only for Owners) */}
+            <Route
+              path="/addmess"
+              element={
+                <ProtectedRoute allowedRoles={["owner"]}>
+                  <AddMessForm />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* 🎯 Unified Dashboard (Student / Owner) */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute
-                    allowedRoles={["student", "owner", "messowner"]}
-                  >
-                    <DashboardRouter />
-                  </ProtectedRoute>
-                }
-              />
+            {/* 🎯 Unified Dashboard (Student / Owner) */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={["student", "owner", "messowner"]}>
+                  <DashboardRouter />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* 🧑‍💼 ADMIN DASHBOARD */}
-              <Route
-                path="/admin/dashboard"
-                element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                }
-              />
+            {/* 🧑‍💼 ADMIN DASHBOARD */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* 🎓 STUDENTS PAGE */}
-              <Route
-                path="/admin/students"
-                element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
-                    <AdminStudents />
-                  </ProtectedRoute>
-                }
-              />
+            {/* 🎓 STUDENTS PAGE */}
+            <Route
+              path="/admin/students"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminStudents />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* 👨‍🍳 OWNERS PAGE */}
-              <Route
-                path="/admin/owners"
-                element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
-                    <AdminOwners />
-                  </ProtectedRoute>
-                }
-              />
+            {/* 👨‍🍳 OWNERS PAGE */}
+            <Route
+              path="/admin/owners"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminOwners />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* 📈 REVENUE REPORT */}
-              <Route
-                path="/admin/revenue-report"
-                element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
-                    <AdminRevenueReport />
-                  </ProtectedRoute>
-                }
-              />
+            {/* 📈 REVENUE REPORT */}
+            <Route
+              path="/admin/revenue-report"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminRevenueReport />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* 🚪 Fallback Route */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            {/* 🚪 Fallback Route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
 
-            {/* ✅ Floating Add Mess Button (Owners Only) */}
-            <AddMessButton />
-          </main>
-        </Router>
+          {/* ✅ Floating Add Mess Button (Owners Only) */}
+          <AddMessButton />
+        </main>
       </CartProvider>
     </AuthProvider>
   );

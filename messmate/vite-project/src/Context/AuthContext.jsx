@@ -1,12 +1,14 @@
 // src/Context/AuthContext.jsx
 import React, { createContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true); // ✅ added for better UX
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     try {
@@ -38,12 +40,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ Logout
+  // ✅ Logout (redirect to homepage for ALL roles)
   const logout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setUser(null);
     setToken(null);
+
+    // 🧭 Redirect everyone to homepage
+    navigate("/");
+    // Optional: force UI refresh to reset states
+    window.location.reload();
   };
 
   return (

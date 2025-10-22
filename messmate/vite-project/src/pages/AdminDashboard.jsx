@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import api from "../services/api";
 import "../styles/AdminDashboard.css";
+import LogoutPopup from "../components/LogoutPopup";
 import { AuthContext } from "../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -25,6 +26,7 @@ const AdminDashboard = () => {
   const [endDate, setEndDate] = useState("");
   const [selectedMess, setSelectedMess] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false); // ✅ added
 
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -108,6 +110,18 @@ const AdminDashboard = () => {
   };
 
   /* ============================================================
+     🚪 Handle Logout Confirmation
+  ============================================================ */
+  const handleLogoutClick = () => setShowLogoutPopup(true);
+
+  const handleConfirmLogout = () => {
+    logout(); // ✅ clears session & redirects to "/"
+    setShowLogoutPopup(false);
+  };
+
+  const handleCancelLogout = () => setShowLogoutPopup(false);
+
+  /* ============================================================
      🧭 Render Component
   ============================================================ */
   return (
@@ -125,17 +139,19 @@ const AdminDashboard = () => {
               year: "numeric",
             })}
           </span>
-          <button
-            className="logout-btn"
-            onClick={() => {
-              logout();
-              navigate("/login");
-            }}
-          >
+          <button className="logout-btn" onClick={handleLogoutClick}>
             Logout
           </button>
         </div>
       </header>
+
+      {/* ===== LOGOUT POPUP ===== */}
+      {showLogoutPopup && (
+        <LogoutPopup
+          onConfirm={handleConfirmLogout}
+          onCancel={handleCancelLogout}
+        />
+      )}
 
       {/* ===== SUMMARY CARDS ===== */}
       <section className="summary-section">
@@ -151,7 +167,7 @@ const AdminDashboard = () => {
 
         <div
           className="summary-card clickable"
-          onClick={() => navigate("/admin/owners")} // ✅ FIXED PATH
+          onClick={() => navigate("/admin/owners")}
         >
           <h3>👨‍🍳 Total Mess Owners</h3>
           <p>{summary.totalOwners}</p>
@@ -159,7 +175,7 @@ const AdminDashboard = () => {
 
         <div
           className="summary-card clickable"
-          onClick={() => navigate("/admin/students")} // ✅ FIXED PATH
+          onClick={() => navigate("/admin/students")}
         >
           <h3>🎓 Total Students</h3>
           <p>{summary.totalStudents}</p>
