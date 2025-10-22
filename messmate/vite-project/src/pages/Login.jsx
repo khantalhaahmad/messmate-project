@@ -1,5 +1,6 @@
+// src/pages/Login.jsx
 import React, { useState, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../services/api";
 import { AuthContext } from "../Context/AuthContext";
 import "../styles/Auth.css";
@@ -9,14 +10,25 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, user } = useContext(AuthContext);
 
-  // ✅ Auto redirect once user data loads in context
+  // ✅ Redirect target (if user came from protected route)
+  const from = location.state?.from?.pathname || "/dashboard";
+
+  // ✅ Redirect after login only from login page
   useEffect(() => {
-    if (user?.role === "student" || user?.role === "owner" || user?.role === "messowner") {
-      navigate("/dashboard");
+    if (
+      user?.role === "student" ||
+      user?.role === "owner" ||
+      user?.role === "messowner"
+    ) {
+      // Only redirect if currently on /login, not on homepage
+      if (window.location.pathname === "/login") {
+        navigate(from, { replace: true });
+      }
     }
-  }, [user, navigate]);
+  }, [user, navigate, from]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,11 +41,9 @@ const Login = () => {
         throw new Error("Invalid login response from server");
       }
 
-      // ✅ Save user & token in context
       login({ user, token });
-
       alert(`✅ Welcome back, ${user.name}!`);
-      // Redirect happens automatically via useEffect
+      navigate(from, { replace: true });
     } catch (err) {
       console.error("❌ Login error:", err);
       setError(err.response?.data?.message || "Login failed. Please try again.");

@@ -2,9 +2,11 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 
-// ✅ Import routes
+// ✅ Import Routes
 import authRoutes from "./routes/auth.js";
 import messRoutes from "./routes/messRoutes.js";
 import orderRoutes from "./routes/OrderRoutes.js";
@@ -13,11 +15,18 @@ import userRoutes from "./routes/userRoutes.js";
 import messRequestRoutes from "./routes/MessRequestRoutes.js";
 import testRoutes from "./routes/testRoutes.js";
 import recommendationRoutes from "./routes/recommendationRoutes.js";
+import ownerStatsRoutes from "./routes/ownerStatsRoutes.js";
 
 dotenv.config();
 connectDB();
 
 const app = express();
+
+// ============================================================
+// 🧭 PATH & DIR SETUP (for file serving)
+// ============================================================
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ============================================================
 // 🌐 CORS CONFIGURATION
@@ -48,29 +57,33 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// ✅ Request logger
+// ✅ Static files for uploaded images (if menu uploads exist)
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// ✅ Simple Request Logger
 app.use((req, res, next) => {
-  console.log(`➡️ ${req.method} ${req.originalUrl}`);
+  console.log(`➡️ [${req.method}] ${req.originalUrl}`);
   next();
 });
 
 // ============================================================
-// 🚏 ROUTES
+// 🚏 ROUTES (All API endpoints prefixed with /api)
 // ============================================================
-app.use("/auth", authRoutes);
-app.use("/messes", messRoutes);
-app.use("/orders", orderRoutes);
-app.use("/reviews", reviewRoutes);
-app.use("/users", userRoutes);
-app.use("/mess-requests", messRequestRoutes);
-app.use("/test", testRoutes);
-app.use("/api/recommendations", recommendationRoutes); // ✅ AI Recommendations
+app.use("/api/auth", authRoutes);
+app.use("/api/messes", messRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/mess-requests", messRequestRoutes);
+app.use("/api/test", testRoutes);
+app.use("/api/recommendations", recommendationRoutes);
+app.use("/api/owner", ownerStatsRoutes);
 
 // ============================================================
-// 🧠 ERROR HANDLER
+// 🧠 GLOBAL ERROR HANDLER
 // ============================================================
 app.use((err, req, res, next) => {
-  console.error("💥 Error:", err.message);
+  console.error("💥 Server Error:", err.message);
   if (err.message === "Not allowed by CORS") {
     return res.status(403).json({ message: "CORS policy: Access denied." });
   }
@@ -78,7 +91,7 @@ app.use((err, req, res, next) => {
 });
 
 // ============================================================
-// 🩺 HEALTH CHECK
+// 🩺 HEALTH CHECK ROUTE
 // ============================================================
 app.get("/", (req, res) => {
   res.send("✅ MessMate backend is running successfully!");
@@ -88,7 +101,10 @@ app.get("/", (req, res) => {
 // 🚀 START SERVER
 // ============================================================
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+});
 
 process.on("SIGTERM", () => {
   console.log("🛑 Server shutting down...");

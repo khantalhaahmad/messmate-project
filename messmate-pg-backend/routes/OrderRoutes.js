@@ -7,8 +7,9 @@ import { verifyToken } from "../middleware/auth.js";
 const router = express.Router();
 
 /**
- * ✅ POST /orders → Place an order (works for any mess)
- * Automatically enriches each item with type/category/image from Mess model
+ * ============================================================
+ * ✅ POST /orders → Place an order
+ * ============================================================
  */
 router.post("/", verifyToken, async (req, res) => {
   try {
@@ -17,37 +18,31 @@ router.post("/", verifyToken, async (req, res) => {
 
     console.log("📦 Incoming Order Request:", { userId, mess_id, mess_name, items });
 
-    // 🧩 1️⃣ Validate input
-    if (!userId) {
+    if (!userId)
       return res.status(401).json({ message: "Unauthorized: user not logged in" });
-    }
 
-    if (!Array.isArray(items) || items.length === 0) {
+    if (!Array.isArray(items) || items.length === 0)
       return res.status(400).json({ message: "No food items provided." });
-    }
 
-    // 🧩 2️⃣ Calculate total price
+    // ✅ Calculate total price
     const total_price = items.reduce(
       (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
       0
     );
 
-    // 🧩 3️⃣ Try finding the mess to pull menu details
+    // ✅ Find mess (to enrich items)
     let mess = null;
     if (mess_id) mess = await Mess.findOne({ mess_id });
 
-    // 🧩 4️⃣ Enrich order items with `type`, `category`, and `image`
     const updatedItems = items.map((item) => {
       let menuItem = null;
 
       if (mess && mess.menu) {
         if (Array.isArray(mess.menu.items)) {
-          // Case: menu stored as { items: [...] }
           menuItem = mess.menu.items.find(
             (m) => m.name.toLowerCase() === item.name.toLowerCase()
           );
         } else if (Array.isArray(mess.menu)) {
-          // Case: menu stored as array
           mess.menu.forEach((m) => {
             if (Array.isArray(m.items)) {
               const found = m.items.find(
@@ -67,7 +62,6 @@ router.post("/", verifyToken, async (req, res) => {
       };
     });
 
-    // 🧩 5️⃣ Save the order
     const newOrder = await Order.create({
       user_id: userId,
       mess_id: mess_id || mess?._id?.toString() || "N/A",
@@ -79,7 +73,6 @@ router.post("/", verifyToken, async (req, res) => {
 
     console.log("✅ Order successfully saved:", newOrder._id);
 
-    // 🧩 6️⃣ Return success response
     return res.status(201).json({
       message: "Order placed successfully!",
       order: newOrder,
@@ -94,14 +87,22 @@ router.post("/", verifyToken, async (req, res) => {
 });
 
 /**
- * 🟢 GET /orders/my-orders → Fetch all orders for logged-in user
+ * ============================================================
+ * 🟢 GET /orders/my-orders → Fetch logged-in user's orders
+ * ============================================================
  */
 router.get("/my-orders", verifyToken, async (req, res) => {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    console.log("🧾 Fetching orders for user:", userId);
+
+    if (!userId)
+      return res.status(401).json({ message: "Unauthorized: No user ID found in token" });
 
     const orders = await Order.find({ user_id: userId }).sort({ createdAt: -1 });
+
+    console.log(`✅ Found ${orders.length} orders for user ${userId}`);
+
     res.status(200).json(orders);
   } catch (err) {
     console.error("💥 Error fetching orders:", err);

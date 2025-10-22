@@ -8,10 +8,12 @@ const isLocalhost =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
 
-// ✅ You can override with VITE_API_URL in production
+// ✅ Auto-select backend URL (add `/api` prefix automatically)
 const BASE_URL = isLocalhost
-  ? "http://localhost:4000" // 🧩 Local backend
-  : import.meta.env.VITE_API_URL || "https://messmate-backend.onrender.com"; // 🛰️ Render backend
+  ? "http://localhost:4000/api" // 🧩 Local backend (with /api)
+  : import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api` // 🛰️ Render backend (with /api)
+  : "https://messmate-backend.onrender.com/api"; // fallback (with /api)
 
 // ============================================================
 // ⚙️ AXIOS INSTANCE SETUP

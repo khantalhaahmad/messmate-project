@@ -1,3 +1,4 @@
+// routes/messRoutes.js
 import express from "express";
 import Mess from "../models/Mess.js";
 import authMiddleware from "./authMiddleware.js";
@@ -25,7 +26,7 @@ router.post("/", authMiddleware, async (req, res) => {
       distance: req.body.distance,
       offer: req.body.offer,
       owner_id: ownerId,
-      menu: formattedMenu, // ✅ use fixed structure
+      menu: formattedMenu,
     });
 
     await newMess.save();
@@ -41,7 +42,7 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 /**
- * 🟡 GET: All Messes — ensure consistent menu structure
+ * 🟡 GET: All Messes
  */
 router.get("/", async (req, res) => {
   try {
@@ -63,8 +64,9 @@ router.get("/", async (req, res) => {
 /**
  * 🔵 GET: Single Mess by mess_id
  */
-router.get("/id/:mess_id", async (req, res) => {
+router.get("/:mess_id", async (req, res) => {
   try {
+    console.log("📦 Fetching mess with ID:", req.params.mess_id);
     const mess = await Mess.findOne({ mess_id: Number(req.params.mess_id) });
     if (!mess) return res.status(404).json({ message: "❌ Mess not found" });
 
@@ -81,17 +83,17 @@ router.get("/id/:mess_id", async (req, res) => {
 /**
  * 🍽️ POST: Add a single menu item
  */
-router.post("/id/:mess_id/menu", authMiddleware, async (req, res) => {
+router.post("/:mess_id/menu", authMiddleware, async (req, res) => {
   try {
     const mess = await Mess.findOne({ mess_id: Number(req.params.mess_id) });
     if (!mess) return res.status(404).json({ message: "❌ Mess not found" });
 
-    // Only admin or owner can add
     if (
       req.user.role !== "admin" &&
       mess.owner_id.toString() !== req.user._id.toString()
-    )
+    ) {
       return res.status(403).json({ message: "⚠️ Not authorized" });
+    }
 
     const newItem = {
       name: req.body.name,
@@ -119,7 +121,7 @@ router.post("/id/:mess_id/menu", authMiddleware, async (req, res) => {
 /**
  * ✏️ PUT: Replace all menu items
  */
-router.put("/id/:mess_id/menu", authMiddleware, async (req, res) => {
+router.put("/:mess_id/menu", authMiddleware, async (req, res) => {
   try {
     const mess = await Mess.findOne({ mess_id: Number(req.params.mess_id) });
     if (!mess) return res.status(404).json({ message: "❌ Mess not found" });
@@ -127,8 +129,9 @@ router.put("/id/:mess_id/menu", authMiddleware, async (req, res) => {
     if (
       req.user.role !== "admin" &&
       mess.owner_id.toString() !== req.user._id.toString()
-    )
+    ) {
       return res.status(403).json({ message: "⚠️ Not authorized" });
+    }
 
     const itemsArray = Array.isArray(req.body.menu)
       ? req.body.menu
@@ -136,11 +139,12 @@ router.put("/id/:mess_id/menu", authMiddleware, async (req, res) => {
       ? req.body.menu.items
       : null;
 
-    if (!itemsArray)
+    if (!itemsArray) {
       return res.status(400).json({
         message:
           "⚠️ Invalid format — send either { menu: [ ... ] } or { menu: { items: [ ... ] } }",
       });
+    }
 
     mess.menu = { items: itemsArray };
     await mess.save();
@@ -158,7 +162,7 @@ router.put("/id/:mess_id/menu", authMiddleware, async (req, res) => {
 /**
  * 🗑️ DELETE: Remove one menu item by index
  */
-router.delete("/id/:mess_id/menu/:index", authMiddleware, async (req, res) => {
+router.delete("/:mess_id/menu/:index", authMiddleware, async (req, res) => {
   try {
     const mess = await Mess.findOne({ mess_id: Number(req.params.mess_id) });
     if (!mess) return res.status(404).json({ message: "❌ Mess not found" });
@@ -183,12 +187,11 @@ router.delete("/id/:mess_id/menu/:index", authMiddleware, async (req, res) => {
 /**
  * 🚮 DELETE: Delete entire mess by mess_id
  */
-router.delete("/id/:mess_id", authMiddleware, async (req, res) => {
+router.delete("/:mess_id", authMiddleware, async (req, res) => {
   try {
     const mess = await Mess.findOne({ mess_id: Number(req.params.mess_id) });
     if (!mess) return res.status(404).json({ message: "❌ Mess not found" });
 
-    // Only owner or admin can delete
     if (
       req.user.role !== "admin" &&
       mess.owner_id.toString() !== req.user._id.toString()

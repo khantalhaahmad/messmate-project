@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "../styles/OwnerDashboard.css";
 import LogoutPopup from "../components/LogoutPopup";
 import {
@@ -11,8 +11,8 @@ import {
   TrendingUp,
   Bell,
   IndianRupee,
-  Edit3,
   Trash2,
+  Home,
 } from "lucide-react";
 import { Bar } from "react-chartjs-2";
 import {
@@ -23,39 +23,97 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import api from "../services/api";
+import { AuthContext } from "../Context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const OwnerDashboard = () => {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [menu, setMenu] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(true);
   const [showAddDishForm, setShowAddDishForm] = useState(false);
   const [newDish, setNewDish] = useState({ name: "", price: "", image: "" });
 
-  const [menu, setMenu] = useState([
-  { name: "Veg Thali", price: 90, image: "/assets/thali.png" },
-  { name: "Masala Dosa", price: 70, image: "/assets/dosa.png" },
-  { name: "Chicken Biryani", price: 120, image: "/assets/biryani.png" },
-]);
+  // ✅ Fetch data
+  useEffect(() => {
+    if (!user?._id) return;
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [menuRes, orderRes, reviewRes, statRes] = await Promise.all([
+          api.get(`/owner/${user._id}/menu`),
+          api.get(`/owner/${user._id}/orders`),
+          api.get(`/owner/${user._id}/reviews`),
+          api.get(`/owner/${user._id}/stats`),
+        ]);
 
+        setMenu(menuRes.data.data || menuRes.data || []);
+        setOrders(orderRes.data.data || orderRes.data || []);
+        setReviews(reviewRes.data.data || reviewRes.data || []);
+        setStats(statRes.data || {});
+      } catch (err) {
+        console.error("❌ Error fetching owner dashboard data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [user]);
 
-  const [reviews] = useState([
-    { name: "Talha Khan", rating: 5, comment: "Delicious food and quick service!" },
-    { name: "Aman Sharma", rating: 4, comment: "Good taste, packaging can improve." },
-    { name: "Sana Ali", rating: 5, comment: "Loved the variety and hygiene!" },
-  ]);
+  // ✅ Add dish
+  const handleAddDish = async (e) => {
+    e.preventDefault();
+    try {
+      const messRes = await api.get(`/messes?owner_id=${user._id}`);
+      const mess = messRes.data[0];
+      if (!mess) return alert("You don’t have a mess yet.");
 
-  const [orders] = useState([
-    { id: "#ORD123", dish: "Veg Thali", customer: "Ravi Kumar", price: "₹90", status: "Delivered" },
-    { id: "#ORD124", dish: "Biryani", customer: "Sahil Khan", price: "₹120", status: "Pending" },
-    { id: "#ORD125", dish: "Dosa", customer: "Anjali Singh", price: "₹70", status: "Delivered" },
-  ]);
+      const res = await api.post(`/messes/${mess.mess_id}/menu`, newDish);
+      setMenu(res.data.menu.items);
+      setNewDish({ name: "", price: "", image: "" });
+      setShowAddDishForm(false);
+    } catch (err) {
+      console.error("❌ Error adding dish:", err);
+    }
+  };
 
+  // ✅ Delete dish
+  const handleDeleteDish = async (index) => {
+    try {
+      const messRes = await api.get(`/messes?owner_id=${user._id}`);
+      const mess = messRes.data[0];
+      if (!mess) return alert("You don’t have a mess yet.");
+
+      await api.delete(`/messes/${mess.mess_id}/menu/${index}`);
+      setMenu(menu.filter((_, i) => i !== index));
+    } catch (err) {
+      console.error("❌ Error deleting dish:", err);
+    }
+  };
+
+  const handleLogoutClick = () => setShowLogoutPopup(true);
+  const handleCancelLogout = () => setShowLogoutPopup(false);
+  const handleConfirmLogout = () => {
+    localStorage.clear();
+    window.location.href = "/";
+  };
+  const handleGoHome = () => navigate("/");
+
+  // ✅ Chart Data
   const weeklyData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    labels: stats.weeklyLabels || [],
     datasets: [
       {
         label: "Orders",
-        data: [12, 18, 10, 22, 15, 25, 20],
+        data: stats.weeklyOrders || [0, 0, 0, 0, 0, 0, 0],
         backgroundColor: "#ff5722",
         borderRadius: 6,
       },
@@ -63,43 +121,24 @@ const OwnerDashboard = () => {
   };
 
   const revenueData = {
-    labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+    labels: stats.monthlyLabels || [],
     datasets: [
       {
         label: "Revenue (₹)",
-        data: [4200, 5300, 6100, 7500],
+        data: stats.monthlyRevenue || [0, 0, 0, 0],
         backgroundColor: "#4caf50",
         borderRadius: 6,
       },
     ],
   };
 
-  const handleLogoutClick = () => setShowLogoutPopup(true);
-  const handleCancelLogout = () => setShowLogoutPopup(false);
-  const handleConfirmLogout = () => {
-    localStorage.clear();
-    alert("You have been logged out successfully!");
-    window.location.href = "/";
-  };
-
-  const handleAddDish = (e) => {
-    e.preventDefault();
-    setMenu([...menu, newDish]);
-    setNewDish({ name: "", price: "", image: "" });
-    setShowAddDishForm(false);
-  };
-
-  const handleDeleteDish = (index) => {
-    const updatedMenu = [...menu];
-    updatedMenu.splice(index, 1);
-    setMenu(updatedMenu);
-  };
+  if (loading) return <p className="loading-text">Loading Dashboard...</p>;
 
   return (
     <div className="owner-dashboard">
       {/* Sidebar */}
       <aside className="sidebar">
-        <h1 className="logo">MessMate 🧑‍🍳</h1>
+        <h1 className="logo">MessMate 🍽️</h1>
         <nav className="menu">
           <a href="#overview" className="menu-item active">
             <TrendingUp size={18} /> <span>Overview</span>
@@ -117,7 +156,9 @@ const OwnerDashboard = () => {
             <Settings size={18} /> <span>Settings</span>
           </a>
         </nav>
-
+        <button className="menu-item go-home-btn" onClick={handleGoHome}>
+          <Home size={18} /> <span>Go to Home</span>
+        </button>
         <button className="logout-btn" onClick={handleLogoutClick}>
           <LogOut size={18} /> <span>Logout</span>
         </button>
@@ -125,39 +166,37 @@ const OwnerDashboard = () => {
 
       {/* Main Section */}
       <main className="main">
-        {/* Header */}
         <div className="header">
           <div>
-            <h2>Welcome, Mess Owner 👋</h2>
+            <h2>Welcome, {user?.name || "Owner"} 👋</h2>
             <p>Track and manage your mess efficiently</p>
           </div>
           <div className="notifications">
             <Bell size={24} />
-            <span className="badge">4</span>
           </div>
         </div>
 
-        {/* Overview Stats */}
+        {/* Overview */}
         <section id="overview" className="owner-stats">
           <div className="card">
             <Utensils className="icon orange" />
             <h3>Total Orders</h3>
-            <p>124</p>
+            <p>{stats.totalOrders || 0}</p>
           </div>
           <div className="card">
             <IndianRupee className="icon green" />
             <h3>Total Revenue</h3>
-            <p>₹12,450</p>
+            <p>₹{stats.totalRevenue || 0}</p>
           </div>
           <div className="card">
             <Users className="icon blue" />
             <h3>Active Customers</h3>
-            <p>58</p>
+            <p>{stats.activeCustomers || 0}</p>
           </div>
           <div className="card">
             <Star className="icon yellow" />
             <h3>Average Rating</h3>
-            <p>4.6 / 5</p>
+            <p>{(stats.avgRating || 0).toFixed(1)}/5</p>
           </div>
         </section>
 
@@ -173,121 +212,71 @@ const OwnerDashboard = () => {
           </div>
         </section>
 
-        {/* Menu Management */}
-        <section id="menu" className="mess-management">
-          <div className="header">
-            <h3>Manage Your Menu 🍛</h3>
-            <button className="add-btn" onClick={() => setShowAddDishForm(true)}>
-              <Plus size={16} /> Add Dish
-            </button>
-          </div>
-
-          {/* Add Dish Form */}
-          {showAddDishForm && (
-            <form className="add-dish-form" onSubmit={handleAddDish}>
-              <input
-                type="text"
-                placeholder="Dish Name"
-                value={newDish.name}
-                onChange={(e) => setNewDish({ ...newDish, name: e.target.value })}
-                required
-              />
-              <input
-                type="number"
-                placeholder="Price (₹)"
-                value={newDish.price}
-                onChange={(e) => setNewDish({ ...newDish, price: e.target.value })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Image URL"
-                value={newDish.image}
-                onChange={(e) => setNewDish({ ...newDish, image: e.target.value })}
-              />
-              <button type="submit">Save Dish</button>
-            </form>
-          )}
-
-          {/* Menu Grid */}
-          <div className="dish-list">
-            {menu.map((dish, i) => (
-              <div key={i} className="dish-card">
-                <img src={dish.image} alt={dish.name} />
-                <div className="dish-info">
-                  <h4>{dish.name}</h4>
-                  <p>₹{dish.price}</p>
-                  <div className="dish-actions">
-                    <button className="edit-btn">
-                      <Edit3 size={14} />
-                    </button>
-                    <button className="delete-btn" onClick={() => handleDeleteDish(i)}>
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Recent Orders */}
+        {/* Orders */}
         <section id="orders" className="recent-orders">
           <h3>Recent Orders 🧾</h3>
           <table>
             <thead>
               <tr>
                 <th>Order ID</th>
-                <th>Dish</th>
-                <th>Customer</th>
-                <th>Price</th>
+                <th>Mess</th>
+                <th>Items</th>
+                <th>Total Price</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              {orders.map((o, i) => (
-                <tr key={i}>
-                  <td>{o.id}</td>
-                  <td>{o.dish}</td>
-                  <td>{o.customer}</td>
-                  <td>{o.price}</td>
-                  <td className={o.status === "Delivered" ? "delivered" : "pending"}>{o.status}</td>
+              {orders.length > 0 ? (
+                orders.map((o) => (
+                  <tr key={o._id}>
+                    <td>{o._id.slice(-6).toUpperCase()}</td>
+                    <td>{o.mess_name}</td>
+                    <td>
+                      {o.items.map((item, i) => (
+                        <div key={i}>
+                          {item.name} × {item.quantity}
+                        </div>
+                      ))}
+                    </td>
+                    <td>₹{o.total_price}</td>
+                    <td>{o.status}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: "center", color: "#888" }}>
+                    No orders yet.
+                  </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </section>
 
-        {/* Reviews Section */}
+        {/* Reviews */}
         <section id="reviews" className="reviews-section">
           <h3>Customer Reviews ⭐</h3>
           <div className="reviews-list">
-            {reviews.map((r, i) => (
-              <div key={i} className="review-card">
-                <h4>{r.name}</h4>
-                <p>"{r.comment}"</p>
-                <span>{"⭐".repeat(r.rating)}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Settings */}
-        <section id="settings" className="settings-section">
-          <h3>Mess Profile Settings ⚙️</h3>
-          <div className="settings-info">
-            <p><strong>Mess Name:</strong> Campus Delight Mess</p>
-            <p><strong>Address:</strong> Near Block A, Hostel Campus</p>
-            <p><strong>Timings:</strong> 9:00 AM – 10:00 PM</p>
-            <p><strong>Contact:</strong> +91 9876543210</p>
-            <p><strong>Mess Type:</strong> Veg + Non-Veg</p>
+            {reviews.length > 0 ? (
+              reviews.map((r) => (
+                <div key={r._id} className="review-card">
+                  <h4>{r.user_name || "Anonymous"}</h4>
+                  <p>"{r.comment}"</p>
+                  <span>{"⭐".repeat(r.rating || 0)}</span>
+                </div>
+              ))
+            ) : (
+              <p style={{ color: "#888" }}>No reviews yet.</p>
+            )}
           </div>
         </section>
       </main>
 
-      {/* Logout Popup */}
       {showLogoutPopup && (
-        <LogoutPopup onConfirm={handleConfirmLogout} onCancel={handleCancelLogout} />
+        <LogoutPopup
+          onConfirm={handleConfirmLogout}
+          onCancel={handleCancelLogout}
+        />
       )}
     </div>
   );

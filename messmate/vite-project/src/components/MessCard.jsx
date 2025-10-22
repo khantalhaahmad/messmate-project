@@ -4,19 +4,25 @@ import { Link } from "react-router-dom";
 import "../styles/MessCard.css";
 
 const MessCard = ({ mess }) => {
+  if (!mess) return null; // ✅ Safety check
+
   const deliveryTime = mess.delivery_time || "25–30 mins";
   const distance = mess.distance || "2.0 km";
   const rating = mess.rating || 4.3;
   const offer = mess.offer || "Flat ₹50 OFF above ₹199";
 
+  // ✅ Generate safe image filename
   const imagePath = `/assets/${mess.name
-    .toLowerCase()
+    ?.toLowerCase()
     .replace(/\s+/g, "")
-    .replace(/[()]/g, "")}.png`;
+    .replace(/[()]/g, "")
+    .trim()}.png`;
 
   return (
-    <Link to={`/messes/id/${mess.mess_id}`} className="messcard-link">
+    // ✅ Fixed: Correct path for navigation
+    <Link to={`/messes/${mess.mess_id}`} className="messcard-link">
       <div className="messcard">
+        {/* Image section */}
         <div className="messcard-image">
           <img
             src={imagePath}
@@ -28,6 +34,7 @@ const MessCard = ({ mess }) => {
           </div>
         </div>
 
+        {/* Info section */}
         <div className="messcard-info">
           <h3 className="messcard-title">{mess.name}</h3>
           <div className="messcard-meta">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "../styles/UserDashboard.css";
 import { useNavigate } from "react-router-dom";
 import { Bar } from "react-chartjs-2";
@@ -22,23 +22,89 @@ import {
   Wallet,
 } from "lucide-react";
 import LogoutPopup from "../components/LogoutPopup";
+import api from "../services/api";
+import { AuthContext } from "../Context/AuthContext";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const UserDashboard = () => {
-  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const userName = "Talha";
-  const role = "STUDENT";
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [recommendedMesses, setRecommendedMesses] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    totalSpent: 0,
+    avgOrderValue: 0,
+  });
 
-  // Chart Data
+  // ✅ Fetch user data, orders, reviews, recommendations
+  useEffect(() => {
+    if (!user?._id) return;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [orderRes, reviewRes, recRes] = await Promise.all([
+          api.get(`/orders/my-orders`),
+          api.get(`/reviews/${user._id}`),
+          api.get(`/recommendations/${user._id}`),
+        ]);
+
+        const ordersData = orderRes.data || [];
+        const recommendations = recRes.data?.data || [];
+        const reviewsData = reviewRes.data || [];
+
+        // 🧮 Compute stats
+        const totalOrders = ordersData.length;
+        const totalSpent = ordersData.reduce(
+          (sum, o) => sum + (o.total_price || 0),
+          0
+        );
+        const avgOrderValue = totalOrders > 0 ? totalSpent / totalOrders : 0;
+
+        setOrders(ordersData);
+        setRecommendedMesses(recommendations);
+        setReviews(reviewsData);
+        setStats({ totalOrders, totalSpent, avgOrderValue });
+      } catch (err) {
+        console.error("❌ Error fetching user dashboard data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user]);
+
+  // ✅ Handlers
+  const handleLogoutClick = () => setShowLogoutPopup(true);
+  const handleCancelLogout = () => setShowLogoutPopup(false);
+  const handleConfirmLogout = () => {
+    localStorage.clear();
+    window.location.href = "/";
+  };
+
+  const handleGoHome = () => navigate("/");
+  const handleMessClick = (id) => navigate(`/messes/id/${id}`);
+
+  // ✅ Chart data
+  const weeklyCounts = Array(7).fill(0);
+  orders.forEach((o) => {
+    const day = new Date(o.createdAt).getDay();
+    weeklyCounts[day]++;
+  });
+
   const data = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     datasets: [
       {
         label: "Orders",
-        data: [2, 3, 1, 4, 2, 5, 3],
+        data: weeklyCounts,
         backgroundColor: "#FF5722",
         borderRadius: 6,
       },
@@ -50,94 +116,41 @@ const UserDashboard = () => {
     scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
   };
 
-  // Recommended Messes (Local PNG Images)
-  const recommendedMesses = [
-    {
-      id: 1,
-      name: "Campus Delight Mess",
-      rating: "4.5",
-      distance: "1.2 km",
-      image: "/assets/mess1.png",
-    },
-    {
-      id: 2,
-      name: "Spice Hub Tiffin",
-      rating: "4.7",
-      distance: "0.8 km",
-      image: "/assets/mess2.png",
-    },
-    {
-      id: 3,
-      name: "Daily Dabba Service",
-      rating: "4.6",
-      distance: "1.5 km",
-      image: "/assets/mess3.png",
-    },
-  ];
-
-  // Order History
-  const orderHistory = [
-    {
-      mess: "Spice Hub Tiffin",
-      items: "Veg Thali, Roti, Paneer Curry",
-      date: "Oct 17, 2025",
-      amount: "₹120",
-      rated: true,
-    },
-    {
-      mess: "Campus Delight Mess",
-      items: "Dal Rice, Salad",
-      date: "Oct 15, 2025",
-      amount: "₹100",
-      rated: false,
-    },
-    {
-      mess: "Daily Dabba Service",
-      items: "Biryani Combo",
-      date: "Oct 14, 2025",
-      amount: "₹90",
-      rated: true,
-    },
-  ];
-
-  const handleLogoutClick = () => setShowLogoutPopup(true);
-  const handleCancelLogout = () => setShowLogoutPopup(false);
-  const handleConfirmLogout = () => {
-    localStorage.clear();
-    alert("You have been logged out successfully!");
-    window.location.href = "/";
-  };
-
-  const handleMessClick = (id) => {
-    navigate(`/messes/id/${id}`); // Navigate to Mess Detail page
-  };
+  if (loading) return <p className="loading-text">Loading Dashboard...</p>;
 
   return (
     <div className="dashboard">
       {/* Sidebar */}
       <aside className="sidebar">
         <h1 className="logo">MessMate 🍽️</h1>
+
         <nav className="menu">
-          <a href="#" className="menu-item active">
-            <Home size={18} /> <span>Home</span>
+          <a href="#home" className="menu-item active">
+            <Home size={18} /> <span>Dashboard</span>
           </a>
-          <a href="#" className="menu-item">
+          <a href="#orders" className="menu-item">
             <ShoppingBag size={18} /> <span>My Orders</span>
           </a>
-          <a href="#" className="menu-item">
+          <a href="#reviews" className="menu-item">
             <Star size={18} /> <span>Reviews</span>
           </a>
-          <a href="#" className="menu-item">
+          <a href="#settings" className="menu-item">
             <Settings size={18} /> <span>Settings</span>
           </a>
         </nav>
 
+        {/* 🏠 Go Home Button (same as Owner Dashboard) */}
+        <button className="menu-item go-home-btn" onClick={handleGoHome}>
+          <Home size={18} /> <span>Go to Home</span>
+        </button>
+
+        {/* 🚪 Logout */}
         <button className="logout-btn" onClick={handleLogoutClick}>
           <LogOut size={18} /> <span>Logout</span>
         </button>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Section */}
       <main className="main">
         {/* Header */}
         <div className="header">
@@ -147,97 +160,147 @@ const UserDashboard = () => {
               alt="User"
             />
             <div>
-              <h2>Welcome, {userName}! 👋</h2>
-              <p>Role: {role}</p>
+              <h2>Welcome, {user?.name || "User"} 👋</h2>
+              <p>Role: {user?.role?.toUpperCase()}</p>
             </div>
           </div>
           <div className="notifications">
             <Bell size={22} />
-            <span className="badge">3</span>
+            <span className="badge">{orders.length}</span>
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Overview Cards */}
         <div className="stats">
           <div className="card">
             <BarChart3 className="icon orange" />
-            <h3>Orders This Week</h3>
-            <p>12</p>
+            <h3>Orders Placed</h3>
+            <p>{stats.totalOrders}</p>
           </div>
           <div className="card">
             <Wallet className="icon green" />
-            <h3>Total Savings</h3>
-            <p>₹540</p>
+            <h3>Total Spent</h3>
+            <p>₹{stats.totalSpent}</p>
           </div>
           <div className="card">
             <Star className="icon yellow" />
-            <h3>Average Rating</h3>
-            <p>4.3 / 5</p>
+            <h3>Avg Order Value</h3>
+            <p>₹{(stats.avgOrderValue || 0).toFixed(0)}</p>
           </div>
         </div>
 
-        {/* Chart */}
+        {/* Weekly Chart */}
         <section className="chart-section">
           <h3>Your Weekly Orders 📊</h3>
           <Bar data={data} options={options} />
         </section>
 
-        {/* Recommended Messes */}
-        <section className="recommended">
-          <h3>Recommended Messes 🍱</h3>
-          <div className="mess-grid">
-            {recommendedMesses.map((mess) => (
-              <div
-                key={mess.id}
-                className="mess-card"
-                onClick={() => handleMessClick(mess.id)}
-              >
-                <img src={mess.image} alt={mess.name} />
-                <h4>{mess.name}</h4>
-                <div className="mess-info">
-                  <span className="rating">
-                    <Star size={14} className="yellow" /> {mess.rating}
-                  </span>
-                  <span className="distance">
-                    <MapPin size={14} /> {mess.distance}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Order History */}
-        <section className="order-history">
-          <h3>Your Order History 🍛</h3>
+        {/* Past Orders */}
+        <section id="orders" className="recent-orders">
+          <h3>Past Orders 🧾</h3>
           <table>
             <thead>
               <tr>
-                <th>Mess Name</th>
-                <th>Items Ordered</th>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Action</th>
+                <th>Order ID</th>
+                <th>Mess</th>
+                <th>Items</th>
+                <th>Total Price</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              {orderHistory.map((order, i) => (
-                <tr key={i}>
-                  <td>{order.mess}</td>
-                  <td>{order.items}</td>
-                  <td>{order.date}</td>
-                  <td>{order.amount}</td>
-                  <td>
-                    {order.rated ? (
-                      <span className="rated-tag">⭐ Rated</span>
-                    ) : (
-                      <button className="rate-btn">Rate Now</button>
-                    )}
+              {orders.length > 0 ? (
+                orders.map((o) => (
+                  <tr key={o._id}>
+                    <td>{o._id.slice(-6).toUpperCase()}</td>
+                    <td>{o.mess_name}</td>
+                    <td>
+                      {o.items.map((item, i) => (
+                        <div key={i}>
+                          {item.name} × {item.quantity}
+                        </div>
+                      ))}
+                    </td>
+                    <td>₹{o.total_price}</td>
+                    <td className="status">{o.status}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: "center", color: "#888" }}>
+                    No orders yet.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
+        </section>
+
+        {/* Reviews */}
+        <section id="reviews" className="reviews-section">
+          <h3>Your Reviews ⭐</h3>
+          <div className="reviews-list">
+            {reviews.length > 0 ? (
+              reviews.map((r) => (
+                <div key={r._id} className="review-card">
+                  <h4>{r.mess_name}</h4>
+                  <p>"{r.comment}"</p>
+                  <span>{"⭐".repeat(r.rating || 0)}</span>
+                </div>
+              ))
+            ) : (
+              <p style={{ color: "#888" }}>No reviews yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* 🍱 Recommended Messes */}
+        <section id="recommended" className="recommended">
+          <h3>Recommended Messes 🍱</h3>
+          <div className="mess-grid">
+            {recommendedMesses.length === 0 ? (
+              <p style={{ color: "#999" }}>No recommendations available yet.</p>
+            ) : (
+              recommendedMesses.map((mess, index) => {
+                // 🖼️ Choose correct image source (.png from assets)
+                const messImage = mess.image
+                  ? mess.image.startsWith("http")
+                    ? mess.image
+                    : `/assets/${mess.image}`
+                  : `/assets/${mess.mess_name
+                      ?.replace(/\s+/g, "")
+                      .toLowerCase()}.png`;
+
+                const fallbackImage = "/assets/default-mess.png";
+
+                return (
+                  <div
+                    key={index}
+                    className="mess-card"
+                    onClick={() => handleMessClick(mess.mess_id)}
+                  >
+                    <img
+                      src={messImage}
+                      alt={mess.mess_name}
+                      onError={(e) => {
+                        e.target.src = fallbackImage;
+                      }}
+                    />
+                    <h4>{mess.mess_name}</h4>
+                    <div className="mess-info">
+                      <span className="rating">
+                        <Star size={14} className="yellow" />{" "}
+                        {mess.rating?.toFixed(1) || "4.5"}
+                      </span>
+                      <span className="distance">
+                        <MapPin size={14} /> {mess.category || "N/A"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
         </section>
       </main>
 

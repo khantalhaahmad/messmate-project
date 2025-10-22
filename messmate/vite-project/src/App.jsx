@@ -1,5 +1,6 @@
+// src/App.jsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./Context/AuthContext";
 import { CartProvider } from "./Context/CartContext";
 
@@ -23,6 +24,7 @@ function App() {
       <CartProvider>
         <Router>
           <FloatingButtons />
+
           <main>
             <Routes>
               {/* 🌐 Public Routes */}
@@ -30,23 +32,23 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
 
-              {/* ➕ Add Mess Page (Protected) */}
+              {/* 🍱 Mess Menu Page (FIXED route path) */}
+              <Route path="/messes/:mess_id" element={<MessMenu />} />
+
+              {/* 🛒 Checkout Page */}
+              <Route path="/checkout" element={<Checkout />} />
+
+              {/* ➕ Add Mess (Protected) */}
               <Route
                 path="/addmess"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={["owner"]}>
                     <AddMessForm />
                   </ProtectedRoute>
                 }
               />
 
-              {/* 🍱 Mess Menu Page (Important Fix: match backend param) */}
-              <Route path="/messes/id/:mess_id" element={<MessMenu />} />
-
-              {/* 🛒 Checkout Page */}
-              <Route path="/checkout" element={<Checkout />} />
-
-              {/* 🔒 Owner Dashboard */}
+              {/* 🔒 Unified Dashboard */}
               <Route
                 path="/dashboard"
                 element={
@@ -55,7 +57,11 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              {/* 🚪 Catch-all */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+
             <AddMessButton />
           </main>
         </Router>
