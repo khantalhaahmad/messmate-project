@@ -6,24 +6,16 @@ import path from "path";
 import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 
-// ✅ Import Routes
-import authRoutes from "./routes/auth.js";
-import messRoutes from "./routes/messRoutes.js";
-import orderRoutes from "./routes/OrderRoutes.js";
-import reviewRoutes from "./routes/reviewRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
-import messRequestRoutes from "./routes/MessRequestRoutes.js";
-import testRoutes from "./routes/testRoutes.js";
-import recommendationRoutes from "./routes/recommendationRoutes.js";
-import ownerStatsRoutes from "./routes/ownerStatsRoutes.js";
-
+// ============================================================
+// 🧠 LOAD ENV & CONNECT DATABASE
+// ============================================================
 dotenv.config();
 connectDB();
 
 const app = express();
 
 // ============================================================
-// 🧭 PATH & DIR SETUP (for file serving)
+// 🧭 PATH & DIR SETUP (for serving static files)
 // ============================================================
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,14 +26,15 @@ const __dirname = path.dirname(__filename);
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://messmate-frontendpart3.onrender.com",
+  "https://messmate-frontendpart3.onrender.com", // production frontend
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
       console.log("❌ Blocked by CORS:", origin);
       return callback(new Error("Not allowed by CORS"));
     },
@@ -57,7 +50,7 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// ✅ Static files for uploaded images (if menu uploads exist)
+// ✅ Static file serving (for uploaded images, etc.)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ✅ Simple Request Logger
@@ -69,25 +62,49 @@ app.use((req, res, next) => {
 // ============================================================
 // 🚏 ROUTES (All API endpoints prefixed with /api)
 // ============================================================
+
+// 🔐 Authentication & User Management
+import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/userRoutes.js";
+
+// 🍽️ Mess & Order Management
+import messRoutes from "./routes/messRoutes.js";
+import orderRoutes from "./routes/OrderRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import messRequestRoutes from "./routes/MessRequestRoutes.js";
+
+// 📊 Analytics & AI Features
+import recommendationRoutes from "./routes/recommendationRoutes.js";
+import ownerStatsRoutes from "./routes/ownerStatsRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js"; // ✅ NEW: Admin analytics routes
+import testRoutes from "./routes/testRoutes.js"; // optional testing route
+
+// 🚀 Register all routes
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/messes", messRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
-app.use("/api/users", userRoutes);
 app.use("/api/mess-requests", messRequestRoutes);
-app.use("/api/test", testRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/owner", ownerStatsRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/test", testRoutes);
 
 // ============================================================
 // 🧠 GLOBAL ERROR HANDLER
 // ============================================================
 app.use((err, req, res, next) => {
   console.error("💥 Server Error:", err.message);
+
   if (err.message === "Not allowed by CORS") {
     return res.status(403).json({ message: "CORS policy: Access denied." });
   }
-  res.status(500).json({ message: "Server Error", error: err.message });
+
+  res.status(500).json({
+    message: "Internal Server Error",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined,
+  });
 });
 
 // ============================================================
@@ -101,11 +118,13 @@ app.get("/", (req, res) => {
 // 🚀 START SERVER
 // ============================================================
 const PORT = process.env.PORT || 4000;
+
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
 });
 
+// Graceful shutdown handler
 process.on("SIGTERM", () => {
   console.log("🛑 Server shutting down...");
   process.exit(0);
