@@ -1,6 +1,10 @@
-// src/App.jsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { AuthProvider } from "./Context/AuthContext";
 import { CartProvider } from "./Context/CartContext";
 
@@ -17,13 +21,19 @@ import Signup from "./pages/Signup";
 import DashboardRouter from "./pages/DashboardRouter";
 import MessMenu from "./pages/MessMenu";
 import Checkout from "./pages/Checkout";
-import AdminDashboard from "./pages/AdminDashboard"; // ✅ New admin page
+
+// Admin Pages
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminStudents from "./pages/AdminStudents";
+import AdminOwners from "./pages/AdminOwners";
+import AdminRevenueReport from "./pages/AdminRevenueReport";
 
 function App() {
   return (
     <AuthProvider>
       <CartProvider>
         <Router>
+          {/* 🧭 Floating UI Elements (Global) */}
           <FloatingButtons />
 
           <main>
@@ -33,13 +43,13 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
 
-              {/* 🍱 Mess Menu Page */}
+              {/* 🍱 Mess Menu (Student/Visitor) */}
               <Route path="/messes/:mess_id" element={<MessMenu />} />
 
-              {/* 🛒 Checkout Page */}
+              {/* 🛒 Checkout */}
               <Route path="/checkout" element={<Checkout />} />
 
-              {/* ➕ Add Mess (Owner only) */}
+              {/* ➕ Add Mess (Only for Owners) */}
               <Route
                 path="/addmess"
                 element={
@@ -49,17 +59,19 @@ function App() {
                 }
               />
 
-              {/* 🧭 Unified Dashboard (for student/owner) */}
+              {/* 🎯 Unified Dashboard (Student / Owner) */}
               <Route
                 path="/dashboard"
                 element={
-                  <ProtectedRoute allowedRoles={["student", "owner", "messowner"]}>
+                  <ProtectedRoute
+                    allowedRoles={["student", "owner", "messowner"]}
+                  >
                     <DashboardRouter />
                   </ProtectedRoute>
                 }
               />
 
-              {/* 🧑‍💼 Admin Dashboard (Admin only) */}
+              {/* 🧑‍💼 ADMIN DASHBOARD */}
               <Route
                 path="/admin/dashboard"
                 element={
@@ -69,10 +81,41 @@ function App() {
                 }
               />
 
-              {/* 🚪 Catch-all */}
+              {/* 🎓 STUDENTS PAGE */}
+              <Route
+                path="/admin/students"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <AdminStudents />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* 👨‍🍳 OWNERS PAGE */}
+              <Route
+                path="/admin/owners"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <AdminOwners />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* 📈 REVENUE REPORT */}
+              <Route
+                path="/admin/revenue-report"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <AdminRevenueReport />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* 🚪 Fallback Route */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
 
+            {/* ✅ Floating Add Mess Button (Owners Only) */}
             <AddMessButton />
           </main>
         </Router>

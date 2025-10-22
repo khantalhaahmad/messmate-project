@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -26,7 +25,7 @@ const __dirname = path.dirname(__filename);
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://messmate-frontendpart3.onrender.com", // production frontend
+  "https://messmate-frontendpart3.onrender.com", // ✅ production frontend
 ];
 
 app.use(
@@ -73,11 +72,14 @@ import orderRoutes from "./routes/OrderRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import messRequestRoutes from "./routes/MessRequestRoutes.js";
 
-// 📊 Analytics & AI Features
+// 📊 Analytics & Admin Features
 import recommendationRoutes from "./routes/recommendationRoutes.js";
 import ownerStatsRoutes from "./routes/ownerStatsRoutes.js";
-import adminRoutes from "./routes/adminRoutes.js"; // ✅ NEW: Admin analytics routes
-import testRoutes from "./routes/testRoutes.js"; // optional testing route
+import adminRoutes from "./routes/adminRoutes.js"; // existing admin analytics
+import adminExtraRoutes from "./routes/adminExtraRoutes.js"; // ✅ new extended admin APIs
+
+// 🧪 Misc (Testing / Debug)
+import testRoutes from "./routes/testRoutes.js";
 
 // 🚀 Register all routes
 app.use("/api/auth", authRoutes);
@@ -89,6 +91,7 @@ app.use("/api/mess-requests", messRequestRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/owner", ownerStatsRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/admin-extra", adminExtraRoutes); // ✅ added here
 app.use("/api/test", testRoutes);
 
 // ============================================================

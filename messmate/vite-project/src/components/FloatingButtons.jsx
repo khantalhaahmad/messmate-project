@@ -1,5 +1,6 @@
+// src/components/FloatingButtons.jsx
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 import "../styles/FloatingButtons.css";
 
@@ -8,8 +9,10 @@ const FloatingButtons = () => {
   const [visible, setVisible] = useState(true);
   const [isOnWhiteSection, setIsOnWhiteSection] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // ✅ Hide floating buttons on non-home pages
     if (location.pathname !== "/") {
       setVisible(false);
       return;
@@ -21,7 +24,7 @@ const FloatingButtons = () => {
 
     if (!messSection || !footerSection || !betterFoodSection) return;
 
-    // Visibility control for buttons
+    // ✅ Visibility control
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -41,7 +44,7 @@ const FloatingButtons = () => {
     observer.observe(messSection);
     observer.observe(footerSection);
 
-    // Detect background color section (BetterFood)
+    // ✅ Detect section color for theme adjustment
     const colorObserver = new IntersectionObserver(
       ([entry]) => setIsOnWhiteSection(entry.isIntersecting),
       { threshold: 0.3 }
@@ -54,6 +57,28 @@ const FloatingButtons = () => {
       colorObserver.disconnect();
     };
   }, [location.pathname]);
+
+  // ✅ Handle dashboard click based on role
+  const handleDashboardClick = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    switch (user.role) {
+      case "admin":
+        navigate("/admin/dashboard");
+        break;
+      case "owner":
+      case "messowner":
+      case "student":
+        navigate("/dashboard");
+        break;
+      default:
+        navigate("/");
+        break;
+    }
+  };
 
   return (
     <div
@@ -71,9 +96,12 @@ const FloatingButtons = () => {
           </Link>
         </>
       ) : (
-        <Link to="/dashboard" className="floating-btn dashboard-btn glow-btn">
+        <button
+          onClick={handleDashboardClick}
+          className="floating-btn dashboard-btn glow-btn"
+        >
           Dashboard
-        </Link>
+        </button>
       )}
     </div>
   );
