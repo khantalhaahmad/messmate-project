@@ -6,31 +6,39 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true); // ✅ added for better UX
 
-  // ✅ Load saved login info on refresh
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
+    try {
+      const storedUser = localStorage.getItem("user");
+      const storedToken = localStorage.getItem("token");
 
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
-      setToken(storedToken);
+      if (storedUser && storedToken) {
+        setUser(JSON.parse(storedUser));
+        setToken(storedToken);
+      }
+    } catch (err) {
+      console.error("⚠️ Failed to parse user from localStorage:", err);
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  // ✅ Login: save user + token
-  const login = (userData) => {
-    if (userData.user && userData.token) {
-      localStorage.setItem("user", JSON.stringify(userData.user));
-      localStorage.setItem("token", userData.token);
-      setUser(userData.user);
-      setToken(userData.token);
+  // ✅ Login
+  const login = ({ user, token }) => {
+    if (user && token) {
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
+      setUser(user);
+      setToken(token);
     } else {
-      console.error("⚠️ Invalid user data during login:", userData);
+      console.error("⚠️ Invalid login data:", { user, token });
     }
   };
 
-  // ✅ Logout: clear all
+  // ✅ Logout
   const logout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
@@ -39,7 +47,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

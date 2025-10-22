@@ -17,6 +17,7 @@ import Signup from "./pages/Signup";
 import DashboardRouter from "./pages/DashboardRouter";
 import MessMenu from "./pages/MessMenu";
 import Checkout from "./pages/Checkout";
+import AdminDashboard from "./pages/AdminDashboard"; // ✅ New admin page
 
 function App() {
   return (
@@ -32,13 +33,13 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
 
-              {/* 🍱 Mess Menu Page (FIXED route path) */}
+              {/* 🍱 Mess Menu Page */}
               <Route path="/messes/:mess_id" element={<MessMenu />} />
 
               {/* 🛒 Checkout Page */}
               <Route path="/checkout" element={<Checkout />} />
 
-              {/* ➕ Add Mess (Protected) */}
+              {/* ➕ Add Mess (Owner only) */}
               <Route
                 path="/addmess"
                 element={
@@ -48,12 +49,22 @@ function App() {
                 }
               />
 
-              {/* 🔒 Unified Dashboard */}
+              {/* 🧭 Unified Dashboard (for student/owner) */}
               <Route
                 path="/dashboard"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={["student", "owner", "messowner"]}>
                     <DashboardRouter />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* 🧑‍💼 Admin Dashboard (Admin only) */}
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <AdminDashboard />
                   </ProtectedRoute>
                 }
               />

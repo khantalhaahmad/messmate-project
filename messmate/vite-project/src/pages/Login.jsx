@@ -13,20 +13,13 @@ const Login = () => {
   const location = useLocation();
   const { login, user } = useContext(AuthContext);
 
-  // ✅ Redirect target (if user came from protected route)
   const from = location.state?.from?.pathname || "/dashboard";
 
-  // ✅ Redirect after login only from login page
   useEffect(() => {
-    if (
-      user?.role === "student" ||
-      user?.role === "owner" ||
-      user?.role === "messowner"
-    ) {
-      // Only redirect if currently on /login, not on homepage
-      if (window.location.pathname === "/login") {
-        navigate(from, { replace: true });
-      }
+    // Already logged in? Redirect immediately
+    if (user?.role) {
+      if (user.role === "admin") navigate("/admin/dashboard", { replace: true });
+      else navigate(from, { replace: true });
     }
   }, [user, navigate, from]);
 
@@ -37,13 +30,14 @@ const Login = () => {
       const res = await api.post("/auth/login", { identifier, password });
       const { user, token } = res.data;
 
-      if (!token || !user) {
-        throw new Error("Invalid login response from server");
-      }
+      if (!token || !user) throw new Error("Invalid login response");
 
       login({ user, token });
       alert(`✅ Welcome back, ${user.name}!`);
-      navigate(from, { replace: true });
+
+      // Redirect based on role
+      if (user.role === "admin") navigate("/admin/dashboard");
+      else navigate(from, { replace: true });
     } catch (err) {
       console.error("❌ Login error:", err);
       setError(err.response?.data?.message || "Login failed. Please try again.");
