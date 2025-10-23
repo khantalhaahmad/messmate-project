@@ -299,5 +299,53 @@ router.get("/owners", verifyToken, adminMiddleware, async (req, res) => {
     res.status(500).json({ message: "Failed to fetch owners" });
   }
 });
+/* ============================================================
+   💰 10. UPDATE PAYOUT STATUS
+   ============================================================ */
+router.put("/payout-status", verifyToken, adminMiddleware, async (req, res) => {
+  try {
+    const { messName, payoutStatus } = req.body;
+
+    if (!messName || !payoutStatus) {
+      return res.status(400).json({ success: false, message: "Mess name and payout status are required." });
+    }
+
+    // ✅ Find the mess by name
+    const mess = await Mess.findOne({ name: messName });
+    if (!mess) {
+      return res.status(404).json({ success: false, message: "Mess not found." });
+    }
+
+    // ✅ Add or update payoutStatus field in mess document
+    mess.payoutStatus = payoutStatus;
+    await mess.save();
+
+    // ✅ Update all confirmed orders for that mess (for this month)
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    await Order.updateMany(
+      {
+        mess_name: messName,
+        status: "confirmed",
+        createdAt: { $gte: startOfMonth },
+      },
+      { payoutStatus }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Payout status for ${messName} updated to '${payoutStatus}'.`,
+    });
+  } catch (error) {
+    console.error("💥 Payout Status Update Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update payout status.",
+      error: error.message,
+    });
+  }
+});
 
 export default router;

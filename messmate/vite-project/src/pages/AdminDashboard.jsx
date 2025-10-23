@@ -101,21 +101,36 @@ const AdminDashboard = () => {
   }, []);
 
   /* ============================================================
-     💸 Update payout status
+   💸 Update payout status
   ============================================================ */
-  const updatePayoutStatus = async (messName, status) => {
-    try {
-      await api.patch(`/admin-extra/payout-status/${messName}`, { status }, config);
+const updatePayoutStatus = async (messName, payoutStatus) => {
+  try {
+    const response = await api.put(
+      "/admin-extra/payout-status",
+      { messName, payoutStatus },
+      {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      }
+    );
+
+    if (response.data.success) {
+      alert(`✅ ${response.data.message}`);
       setPayouts((prev) =>
         prev.map((p) =>
-          p.messName === messName ? { ...p, payoutStatus: status } : p
+          p.messName === messName ? { ...p, payoutStatus } : p
         )
       );
-    } catch (err) {
-      console.error("Failed to update payout:", err);
+    } else {
       alert("Failed to update payout status");
     }
-  };
+  } catch (err) {
+    console.error("❌ Error updating payout:", err);
+    alert("Failed to update payout status");
+  }
+};
+
 
   /* ============================================================
      ✅ Approve / Reject Mess Request
@@ -398,49 +413,63 @@ const AdminDashboard = () => {
   </table>
 </section>
 
-      {/* ===== PAYOUTS ===== */}
-      <section className="table-section">
-        <h2>💸 Owner Payouts (This Month)</h2>
-        <table className="earnings-table">
-          <thead>
-            <tr>
-              <th>Mess</th>
-              <th>Owner</th>
-              <th>Email</th>
-              <th>Total</th>
-              <th>Commission</th>
-              <th>Payable</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payouts.map((p, i) => (
-              <tr key={i}>
-                <td>{p.messName}</td>
-                <td>{p.ownerName}</td>
-                <td>{p.ownerEmail}</td>
-                <td>{p.totalRevenue}</td>
-                <td>{p.commission}</td>
-                <td>{p.payable}</td>
-                <td>
-                  <select
-                    className={`status-select ${
-                      p.payoutStatus === "Paid" ? "paid" : "pending"
-                    }`}
-                    value={p.payoutStatus}
-                    onChange={(e) =>
-                      updatePayoutStatus(p.messName, e.target.value)
-                    }
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Paid">Paid</option>
-                  </select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      {/* ===== OWNER PAYOUTS (This Month) ===== */}
+<section className="table-section">
+  <h2>💸 Owner Payouts (This Month)</h2>
+  <table className="earnings-table">
+    <thead>
+      <tr>
+        <th>Mess</th>
+        <th>Owner</th>
+        <th>Email</th>
+        <th>Total</th>
+        <th>Commission</th>
+        <th>Payable</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {payouts.map((p, i) => (
+        <tr key={i}>
+          <td>{p.messName}</td>
+          <td>{p.ownerName}</td>
+          <td>{p.ownerEmail}</td>
+          <td>{p.totalRevenue}</td>
+          <td>{p.commission}</td>
+          <td>{p.payable}</td>
+          <td>
+            <span
+              className={`status-badge ${
+                p.payoutStatus === "Paid" ? "paid" : "pending"
+              }`}
+            >
+              {p.payoutStatus}
+            </span>
+          </td>
+          <td>
+            {p.payoutStatus === "Pending" ? (
+              <button
+                className="approve-btn"
+                onClick={() => updatePayoutStatus(p.messName, "Paid")}
+              >
+                💰 Mark as Paid
+              </button>
+            ) : (
+              <button
+                className="reject-btn"
+                onClick={() => updatePayoutStatus(p.messName, "Pending")}
+              >
+                ⏳ Mark as Pending
+              </button>
+            )}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</section>
+
 
       {/* ===== REVIEWS ===== */}
       <section className="table-section">
