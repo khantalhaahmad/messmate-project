@@ -1,3 +1,4 @@
+// ✅ src/pages/UserDashboard.jsx
 import React, { useState, useEffect, useContext } from "react";
 import "../styles/UserDashboard.css";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +32,7 @@ const UserDashboard = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // ✅ States
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [orders, setOrders] = useState([]);
   const [recommendedMesses, setRecommendedMesses] = useState([]);
@@ -42,17 +44,17 @@ const UserDashboard = () => {
     avgOrderValue: 0,
   });
 
-  // ✅ Fetch user data, orders, reviews, recommendations
+  // ✅ Fetch user data, orders, recommendations, reviews
   useEffect(() => {
     if (!user?._id) return;
 
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [orderRes, reviewRes, recRes] = await Promise.all([
+        const [orderRes, recRes, reviewRes] = await Promise.all([
           api.get(`/orders/my-orders`),
-          api.get(`/reviews/${user._id}`),
           api.get(`/recommendations/${user._id}`),
+          api.get(`/reviews/${user._id}`),
         ]);
 
         const ordersData = orderRes.data || [];
@@ -72,7 +74,7 @@ const UserDashboard = () => {
         setReviews(reviewsData);
         setStats({ totalOrders, totalSpent, avgOrderValue });
       } catch (err) {
-        console.error("❌ Error fetching user dashboard data:", err);
+        console.error("❌ Error fetching dashboard data:", err);
       } finally {
         setLoading(false);
       }
@@ -88,11 +90,10 @@ const UserDashboard = () => {
     localStorage.clear();
     window.location.href = "/";
   };
-
   const handleGoHome = () => navigate("/");
   const handleMessClick = (id) => navigate(`/messes/id/${id}`);
 
-  // ✅ Chart data
+  // ✅ Weekly orders chart
   const weeklyCounts = Array(7).fill(0);
   orders.forEach((o) => {
     const day = new Date(o.createdAt).getDay();
@@ -110,7 +111,6 @@ const UserDashboard = () => {
       },
     ],
   };
-
   const options = {
     plugins: { legend: { display: false } },
     scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
@@ -139,7 +139,7 @@ const UserDashboard = () => {
           </a>
         </nav>
 
-        {/* 🏠 Go Home Button (same as Owner Dashboard) */}
+        {/* 🏠 Go Home Button (matching Owner Dashboard) */}
         <button className="menu-item go-home-btn" onClick={handleGoHome}>
           <Home size={18} /> <span>Go to Home</span>
         </button>
@@ -195,7 +195,7 @@ const UserDashboard = () => {
           <Bar data={data} options={options} />
         </section>
 
-        {/* Past Orders */}
+        {/* Orders Table */}
         <section id="orders" className="recent-orders">
           <h3>Past Orders 🧾</h3>
           <table>
@@ -236,7 +236,7 @@ const UserDashboard = () => {
           </table>
         </section>
 
-        {/* Reviews */}
+        {/* Reviews Section */}
         <section id="reviews" className="reviews-section">
           <h3>Your Reviews ⭐</h3>
           <div className="reviews-list">
@@ -254,7 +254,7 @@ const UserDashboard = () => {
           </div>
         </section>
 
-        {/* 🍱 Recommended Messes */}
+        {/* Recommendations */}
         <section id="recommended" className="recommended">
           <h3>Recommended Messes 🍱</h3>
           <div className="mess-grid">
@@ -262,11 +262,10 @@ const UserDashboard = () => {
               <p style={{ color: "#999" }}>No recommendations available yet.</p>
             ) : (
               recommendedMesses.map((mess, index) => {
-                // 🖼️ Choose correct image source (.png from assets)
-                const messImage = mess.image
+                const imageUrl = mess.image
                   ? mess.image.startsWith("http")
                     ? mess.image
-                    : `/assets/${mess.image}`
+                    : `/assets/${mess.image.trim()}`
                   : `/assets/${mess.mess_name
                       ?.replace(/\s+/g, "")
                       .toLowerCase()}.png`;
@@ -280,9 +279,10 @@ const UserDashboard = () => {
                     onClick={() => handleMessClick(mess.mess_id)}
                   >
                     <img
-                      src={messImage}
+                      src={imageUrl}
                       alt={mess.mess_name}
                       onError={(e) => {
+                        e.target.onerror = null;
                         e.target.src = fallbackImage;
                       }}
                     />

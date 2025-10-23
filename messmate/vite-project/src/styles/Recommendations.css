@@ -1,142 +1,174 @@
-/* ========== RECOMMENDED SECTION (GRID STYLE) ========== */
+/* ==============================
+   🍽️ Recommended Section Styling
+   ============================== */
 
 .recommendation-section {
-  width: 100%;
-  padding: 40px 60px;
-  margin: 40px 0;
-  background: #fff;
+  padding: 40px 80px;
+  background-color: #fafbff;
 }
 
 .recommendation-title {
-  font-size: 1.8rem;
+  font-size: 24px;
   font-weight: 700;
-  color: #222;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  color: #1e1e2f;
 }
 
-.recommendation-title::before {
-  content: "🍽️";
-  font-size: 1.8rem;
-}
-
-/* GRID LAYOUT */
+/* ===== Grid Layout ===== */
 .recommendation-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 25px;
+  justify-items: center;
 }
 
-/* CARD DESIGN */
+/* ===== Card Container ===== */
 .recommendation-card {
+  width: 230px;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  transition: all 0.3s ease;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s ease;
   position: relative;
-  cursor: pointer;
 }
 
 .recommendation-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* IMAGE */
-.recommendation-card img {
+/* ===== Image Section ===== */
+.recommendation-image-wrapper {
+  position: relative;
   width: 100%;
-  height: 140px;
-  object-fit: cover;
-  background: #f6f6f6;
+  height: 150px;
+  overflow: hidden;
 }
 
-/* RATING BADGE */
+.recommendation-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.recommendation-card:hover img {
+  transform: scale(1.05);
+}
+
+/* ===== Rating Badge ===== */
 .recommendation-rating-badge {
   position: absolute;
   top: 10px;
   right: 10px;
-  background: #00a884;
-  color: white;
-  font-size: 0.8rem;
+  background: #16a34a;
+  color: #fff;
+  padding: 3px 9px;
+  border-radius: 10px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-/* INFO */
+/* ===== Info Section ===== */
 .recommendation-info {
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 10px;
+  padding: 14px 16px 55px;
+  position: relative;
 }
 
 .recommendation-info h4 {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   color: #222;
+  margin-bottom: 6px;
 }
 
 .recommendation-info p {
-  font-size: 0.85rem;
-  color: #777;
+  font-size: 13px;
+  color: #555;
   margin-bottom: 8px;
-  line-height: 1.4;
-  min-height: 38px;
+  height: 34px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* PRICE + BUTTON */
+/* ===== Bottom Price + Button Row ===== */
 .recommendation-bottom {
+  position: absolute;
+  bottom: 12px;
+  left: 16px;
+  right: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+/* Price */
 .recommendation-price {
-  font-weight: 600;
-  color: #e63946;
-  font-size: 0.95rem;
+  font-weight: 700;
+  color: #000;
+  font-size: 15px;
 }
 
+/* ==============================
+   ✨ Beautiful ADD+ Button
+   ============================== */
 .add-btn {
-  background-color: #ff4b4b;
-  color: white;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #ff4b2b, #ff416c);
+  color: #fff;
   border: none;
-  border-radius: 10px;
-  padding: 6px 12px;
-  font-size: 0.85rem;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
   cursor: pointer;
-  transition: background 0.25s ease;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 4px 10px rgba(255, 65, 108, 0.25);
 }
 
 .add-btn:hover {
-  background-color: #e03e3e;
+  background: linear-gradient(135deg, #ff3a3a, #ff6347);
+  transform: scale(1.07);
+  box-shadow: 0 6px 15px rgba(255, 80, 80, 0.35);
 }
 
-/* EMPTY STATE */
+.add-btn:active {
+  transform: scale(0.95);
+}
+
+/* ===== No Recommendations ===== */
 .no-recommendations {
   text-align: center;
   color: #666;
-  font-size: 1rem;
-  padding: 30px 0;
+  font-size: 15px;
+  margin-top: 20px;
 }
 
-/* RESPONSIVE */
+/* ===== Loading ===== */
+.loading {
+  text-align: center;
+  color: #777;
+  font-size: 16px;
+  margin-top: 40px;
+}
+
+/* ===== Responsive ===== */
 @media (max-width: 768px) {
   .recommendation-section {
     padding: 20px;
   }
 
   .recommendation-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 18px;
   }
 
-  .recommendation-card img {
-    height: 120px;
+  .recommendation-card {
+    width: 100%;
+    max-width: 240px;
   }
 }

@@ -26,12 +26,37 @@ const AdminDashboard = () => {
   const [endDate, setEndDate] = useState("");
   const [selectedMess, setSelectedMess] = useState("all");
   const [loading, setLoading] = useState(true);
-  const [showLogoutPopup, setShowLogoutPopup] = useState(false); // ✅ added
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [currentTime, setCurrentTime] = useState("");
 
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const config = { headers: { Authorization: `Bearer ${token}` } };
+
+  /* ============================================================
+     🕒 Live Date & Time Update
+  ============================================================ */
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const date = now.toLocaleDateString("en-IN", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+      const time = now.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      setCurrentTime(`${date} | ${time}`);
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   /* ============================================================
      🚀 Fetch all dashboard data
@@ -71,6 +96,10 @@ const AdminDashboard = () => {
     }
   };
 
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+
   /* ============================================================
      💸 Update payout status
   ============================================================ */
@@ -88,12 +117,19 @@ const AdminDashboard = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAllData();
-  }, []);
-
-  if (loading || !summary)
-    return <div className="admin-loading-screen">Loading Admin Dashboard...</div>;
+  /* ============================================================
+     ✅ Approve / Reject Mess Request
+  ============================================================ */
+  const handleRequestAction = async (id, action) => {
+    try {
+      await api.put(`/mess-requests/${id}/${action}`, {}, config);
+      alert(`✅ Request ${action}ed successfully!`);
+      setRequests((prev) => prev.filter((r) => r._id !== id));
+    } catch (err) {
+      console.error(`Failed to ${action} request:`, err);
+      alert(`❌ Failed to ${action} request.`);
+    }
+  };
 
   /* ============================================================
      📊 Handle revenue report navigation
@@ -113,32 +149,37 @@ const AdminDashboard = () => {
      🚪 Handle Logout Confirmation
   ============================================================ */
   const handleLogoutClick = () => setShowLogoutPopup(true);
-
   const handleConfirmLogout = () => {
-    logout(); // ✅ clears session & redirects to "/"
+    logout();
     setShowLogoutPopup(false);
   };
-
   const handleCancelLogout = () => setShowLogoutPopup(false);
+
+  if (loading || !summary)
+    return <div className="admin-loading-screen">Loading Admin Dashboard...</div>;
 
   /* ============================================================
      🧭 Render Component
   ============================================================ */
   return (
     <div className="admin-dashboard">
-      {/* ===== HEADER ===== */}
+      {/* ===== HEADER / NAVBAR ===== */}
       <header className="admin-header">
-        <h1>MessMate Admin Dashboard</h1>
-        <div className="admin-header-right">
-          <span>👋 {user?.name || "Admin"}</span>
-          <span>
-            {new Date().toLocaleDateString("en-IN", {
-              weekday: "short",
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })}
-          </span>
+        <div className="header-left">
+          <h1>📊 MessMate Admin Dashboard</h1>
+        </div>
+
+        <div className="header-center">
+          <button className="home-btn" onClick={() => navigate("/")}>
+            🏠 Home
+          </button>
+          <span className="datetime">{currentTime}</span>
+        </div>
+
+        <div className="header-right">
+          <div className="admin-info">
+            <span className="admin-name">{user?.name || "Admin"}</span>
+          </div>
           <button className="logout-btn" onClick={handleLogoutClick}>
             Logout
           </button>
@@ -262,37 +303,100 @@ const AdminDashboard = () => {
       </section>
 
       {/* ===== PENDING REQUESTS ===== */}
-      <section className="table-section">
-        <h2>📬 Pending Mess Requests</h2>
-        <table className="earnings-table">
-          <thead>
-            <tr>
-              <th>Mess Name</th>
-              <th>Owner</th>
-              <th>Email</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requests.length > 0 ? (
-              requests.map((r, i) => (
-                <tr key={i}>
-                  <td>{r.mess_name}</td>
-                  <td>{r.owner_id?.name}</td>
-                  <td>{r.owner_id?.email}</td>
-                  <td>{r.status}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="4" className="no-data">
-                  No pending requests
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </section>
+<section className="table-section">
+  <h2>📬 Pending Mess Requests</h2>
+  <table className="earnings-table">
+    <thead>
+      <tr>
+        <th>Mess Name</th>
+        <th>Location</th>
+        <th>Owner</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {requests.length > 0 ? (
+        requests.map((r, i) => (
+          <tr key={i}>
+            <td>{r.name || "N/A"}</td>
+            <td>{r.location || "N/A"}</td>
+            <td>{r.owner_id?.name || "N/A"}</td>
+            <td>{r.owner_id?.email || "N/A"}</td>
+            <td>
+              <span
+                className={`status-badge ${
+                  r.status === "pending"
+                    ? "pending"
+                    : r.status === "approved"
+                    ? "approved"
+                    : "rejected"
+                }`}
+              >
+                {r.status}
+              </span>
+            </td>
+            <td>{new Date(r.createdAt).toLocaleDateString()}</td>
+            <td>
+              <div className="action-btns">
+                <button
+  className="btn-approve"
+  onClick={async () => {
+    try {
+      const res = await api.put(`/mess-requests/${r._id}/approve`, {}, config);
+
+      if (res.data.success) {
+        const approvedMess = res.data.mess;
+        // ✅ Instantly add new mess to mess list (UI update)
+        setMessList((prev) => [...prev, approvedMess]);
+        // ✅ Remove from pending requests
+        setRequests((prev) => prev.filter((req) => req._id !== r._id));
+
+        // ✅ Visual success feedback
+        alert("✅ Mess Approved Successfully & added to list!");
+      } else {
+        alert(res.data.message || "Failed to approve mess request.");
+      }
+    } catch (err) {
+      console.error("❌ Error approving mess:", err);
+      alert("❌ Failed to approve mess request.");
+    }
+  }}
+>
+  ✅ Approve
+</button>
+
+                <button
+                  className="btn-reject"
+                  onClick={async () => {
+                    try {
+                      await api.put(`/mess-requests/${r._id}/reject`, {}, config);
+                      alert("❌ Mess Request Rejected!");
+                      setRequests((prev) => prev.filter((req) => req._id !== r._id));
+                    } catch (err) {
+                      console.error("❌ Error rejecting mess:", err);
+                      alert("Failed to reject mess request.");
+                    }
+                  }}
+                >
+                  ❌ Reject
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan="7" className="no-data">
+            No pending requests
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</section>
 
       {/* ===== PAYOUTS ===== */}
       <section className="table-section">

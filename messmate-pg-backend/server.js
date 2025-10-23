@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
@@ -14,10 +15,17 @@ connectDB();
 const app = express();
 
 // ============================================================
-// 🧭 PATH & DIR SETUP (for serving static files)
+// 📁 PATH & DIRECTORY SETUP
 // ============================================================
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// ✅ Ensure uploads folder exists (auto-create if missing)
+const uploadsDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log("📂 'uploads' folder created automatically ✅");
+}
 
 // ============================================================
 // 🌐 CORS CONFIGURATION
@@ -49,39 +57,39 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// ✅ Static file serving (for uploaded images, etc.)
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// ✅ Static file serving (uploads folder)
+app.use("/uploads", express.static(uploadsDir));
 
-// ✅ Simple Request Logger
+// ✅ Simple Logger
 app.use((req, res, next) => {
   console.log(`➡️ [${req.method}] ${req.originalUrl}`);
   next();
 });
 
 // ============================================================
-// 🚏 ROUTES (All API endpoints prefixed with /api)
+// 🚏 ROUTES
 // ============================================================
 
-// 🔐 Authentication & User Management
+// 🔐 Auth & Users
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/userRoutes.js";
 
-// 🍽️ Mess & Order Management
+// 🍽️ Mess & Orders
 import messRoutes from "./routes/messRoutes.js";
 import orderRoutes from "./routes/OrderRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import messRequestRoutes from "./routes/MessRequestRoutes.js";
 
-// 📊 Analytics & Admin Features
+// 📊 Admin & Analytics
 import recommendationRoutes from "./routes/recommendationRoutes.js";
 import ownerStatsRoutes from "./routes/ownerStatsRoutes.js";
-import adminRoutes from "./routes/adminRoutes.js"; // existing admin analytics
-import adminExtraRoutes from "./routes/adminExtraRoutes.js"; // ✅ new extended admin APIs
+import adminRoutes from "./routes/adminRoutes.js";
+import adminExtraRoutes from "./routes/adminExtraRoutes.js";
 
-// 🧪 Misc (Testing / Debug)
+// 🧪 Testing
 import testRoutes from "./routes/testRoutes.js";
 
-// 🚀 Register all routes
+// ✅ Register routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messes", messRoutes);
@@ -91,14 +99,14 @@ app.use("/api/mess-requests", messRequestRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/owner", ownerStatsRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/admin-extra", adminExtraRoutes); // ✅ added here
+app.use("/api/admin-extra", adminExtraRoutes);
 app.use("/api/test", testRoutes);
 
 // ============================================================
 // 🧠 GLOBAL ERROR HANDLER
 // ============================================================
 app.use((err, req, res, next) => {
-  console.error("💥 Server Error:", err.message);
+  console.error("💥 Server Error:", err.stack || err.message);
 
   if (err.message === "Not allowed by CORS") {
     return res.status(403).json({ message: "CORS policy: Access denied." });
@@ -106,7 +114,10 @@ app.use((err, req, res, next) => {
 
   res.status(500).json({
     message: "Internal Server Error",
-    error: process.env.NODE_ENV === "development" ? err.message : undefined,
+    error:
+      process.env.NODE_ENV === "development"
+        ? err.message
+        : "An unexpected error occurred.",
   });
 });
 

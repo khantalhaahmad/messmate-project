@@ -1,15 +1,41 @@
 import mongoose from "mongoose";
-import AutoIncrementFactory from "mongoose-sequence";
+
+const menuItemSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    description: { type: String },
+    isVeg: { type: Boolean, default: true },
+  },
+  { _id: false }
+);
 
 const messRequestSchema = new mongoose.Schema(
   {
-    request_id: { type: Number, unique: true },
+    // Basic Mess Info
     name: { type: String, required: true },
     location: { type: String, required: true },
-    menu: { type: Object, default: { items: [] } },
-    price_range: String,
-    offer: String,
-    owner_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    mobile: { type: String, required: true },
+    email: { type: String, required: true },
+
+    // Menu items array similar to Mess model
+    menu: {
+      items: { type: [menuItemSchema], default: [] },
+    },
+
+    price_range: { type: String },
+    offer: { type: String },
+    pancard: { type: String },
+    menuPhoto: { type: String },
+
+    // Relationship
+    owner_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    // Status control
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
@@ -20,9 +46,8 @@ const messRequestSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ✅ Add Auto-Increment Plugin
-const AutoIncrement = AutoIncrementFactory(mongoose);
-messRequestSchema.plugin(AutoIncrement, { inc_field: "request_id" });
+// ✅ Ensure no accidental unique index remains
+messRequestSchema.index({ request_id: 1 }, { unique: false, sparse: true });
 
 const MessRequest = mongoose.model("MessRequest", messRequestSchema);
 export default MessRequest;

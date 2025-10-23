@@ -633,3 +633,260 @@
   font-style: italic;
   padding: 1rem;
 }
+/* ===========================
+   🌟 ADMIN DASHBOARD NAVBAR
+   =========================== */
+
+.admin-header {
+  background-color: #1e3a8a;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 40px;
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  margin-bottom: 30px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+/* -------- LEFT (Title) -------- */
+.header-left h1 {
+  font-size: 23px;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* -------- CENTER (Home + Time) -------- */
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: 1;
+  justify-content: center;
+}
+
+.datetime {
+  background-color: #2b4bb2;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 210px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* -------- RIGHT (User Info + Logout) -------- */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* User Info Badge */
+.admin-info {
+  background: linear-gradient(145deg, #2f53c4, #1e3a8a);
+  padding: 8px 20px;
+  border-radius: 50px;
+  text-align: center;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.admin-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.admin-subtext {
+  margin: 0;
+  font-size: 12px;
+  color: #d4d4d4;
+  font-style: italic;
+}
+
+/* -------- BUTTONS -------- */
+.home-btn,
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Make Home button pop slightly */
+.home-btn {
+  gap: 6px;
+}
+
+.home-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Make Logout button stand out a bit more */
+.logout-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+/* -------- Responsive Fix -------- */
+@media (max-width: 992px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 12px;
+  }
+
+  .header-center {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .header-right {
+    justify-content: flex-start;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .admin-info {
+    padding: 6px 14px;
+    border-radius: 14px;
+  }
+  /* -------- ADMIN INFO (Name Badge) -------- */
+.admin-info {
+  background: linear-gradient(145deg, #2f53c4, #1d3a92);
+  padding: 8px 24px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25),
+              inset 0 1px 2px rgba(255, 255, 255, 0.15);
+  white-space: nowrap;
+}
+
+.admin-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+/* Optional hover glow for elegance */
+.admin-info:hover {
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+  transition: all 0.3s ease;
+}
+.approve-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  margin-right: 5px;
+  transition: background 0.3s ease;
+}
+
+.approve-btn:hover {
+  background-color: #45a049;
+}
+
+.reject-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.reject-btn:hover {
+  background-color: #c0392b;
+}
+/* ===== Modern Action Buttons ===== */
+.action-btns {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-approve,
+.btn-reject {
+  border: none;
+  outline: none;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-approve {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+.btn-approve:hover {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  transform: scale(1.05);
+}
+
+.btn-reject {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+.btn-reject:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: scale(1.05);
+}
+
+/* ===== Status Badges ===== */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+}
+
+.status-badge.pending {
+  background-color: #facc15;
+  color: #1f2937;
+}
+
+.status-badge.approved {
+  background-color: #22c55e;
+}
+
+.status-badge.rejected {
+  background-color: #ef4444;
+}
+
+/* ===== Table Hover Styling ===== */
+.earnings-table tr:hover {
+  background-color: #f9fafb;
+  transition: 0.25s ease-in-out;
+}
+
+}
+

@@ -1,66 +1,412 @@
-.add-mess-form-container {
-  background: #f9f9f9;
-  padding: 20px;
-  border-radius: 12px;
-  max-width: 400px;
-  margin: 20px auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* ============================
+   🌟 Add Mess Page Styling
+   ============================ */
+
+.addmess-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f5f7fa, #e8ecf5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  font-family: "Inter", sans-serif;
 }
 
-.add-mess-form h2 {
+.addmess-wrapper {
+  background: #fff;
+  padding: 2.5rem 3rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 680px;
+  animation: fadeInUp 0.5s ease-in-out;
+}
+
+.addmess-title {
+  font-size: 1.9rem;
+  font-weight: 700;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
+  color: #1e3a8a;
+  letter-spacing: 0.5px;
 }
 
-.add-mess-form .form-group {
-  margin-bottom: 15px;
+/* ============================
+   🌈 Form Styling
+   ============================ */
+
+.addmess-form {
   display: flex;
   flex-direction: column;
+  gap: 18px;
 }
 
-.add-mess-form label {
+.addmess-form label {
   font-weight: 600;
-  margin-bottom: 5px;
+  color: #2e2e2e;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
 }
 
-.add-mess-form input,
-.add-mess-form select {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-}
-
-.add-mess-form input:focus,
-.add-mess-form select:focus {
+.addmess-form input,
+.addmess-form select,
+.addmess-form textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #cbd5e1;
   outline: none;
-  border-color: #007bff;
+  font-size: 0.95rem;
+  background: #f9fafb;
+  transition: all 0.2s ease;
 }
+
+.addmess-form input:focus,
+.addmess-form select:focus,
+.addmess-form textarea:focus {
+  border-color: #3b82f6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.addmess-form input[type="file"] {
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+/* ============================
+   🍽️ Menu Items Section
+   ============================ */
+
+.menu-item-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #f1f5f9;
+  padding: 12px 15px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #dbe3ef;
+}
+
+.menu-item-row input,
+.menu-item-row select {
+  flex: 1 1 calc(50% - 10px);
+  min-width: 150px;
+  background: #fff;
+}
+
+.menu-item-row input::placeholder {
+  color: #94a3b8;
+}
+
+.addmess-form button[type="button"] {
+  align-self: flex-start;
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px dashed #60a5fa;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.addmess-form button[type="button"]:hover {
+  background: #bae6fd;
+  color: #075985;
+}
+
+/* ============================
+   🚀 Submit Button
+   ============================ */
 
 .submit-btn {
-  width: 100%;
-  padding: 10px;
-  background-color: #007bff;
+  margin-top: 1rem;
+  background: #2563eb;
   color: white;
+  font-size: 1rem;
+  padding: 12px 0;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .submit-btn:hover {
-  background-color: #0056b3;
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* ============================
+   💬 Message Styles
+   ============================ */
+
+.success-msg,
+.error-msg {
+  text-align: center;
+  font-weight: 600;
+  margin-top: 1rem;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 .success-msg {
-  color: green;
-  text-align: center;
-  margin-top: 10px;
+  background: #dcfce7;
+  color: #166534;
 }
 
 .error-msg {
-  color: red;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* ============================
+   ✨ Animations
+   ============================ */
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================
+   📱 Responsive Design
+   ============================ */
+
+@media (max-width: 600px) {
+  .addmess-wrapper {
+    padding: 1.5rem 1.2rem;
+  }
+
+  .menu-item-row {
+    flex-direction: column;
+  }
+
+  .addmess-form button[type="button"] {
+    width: 100%;
+    text-align: center;
+  }
+  /* ================================
+   🌟 Add Mess Page Modern Design
+   ================================ */
+
+.addmess-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #f8fafc, #eef2ff);
+  padding: 50px 20px;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ====== Form Card ====== */
+.addmess-wrapper {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 40px 50px;
+  width: 100%;
+  max-width: 750px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.addmess-wrapper h2 {
+  font-size: 2rem;
+  color: #1e293b;
   text-align: center;
-  margin-top: 10px;
+  font-weight: 700;
+  margin-bottom: 25px;
+}
+
+/* ====== Inputs & Select ====== */
+.addmess-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.addmess-form label {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 6px;
+  display: block;
+  font-size: 0.95rem;
+}
+
+.addmess-form input,
+.addmess-form select,
+.addmess-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.8px solid #d1d5db;
+  outline: none;
+  background: #f9fafb;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+}
+
+.addmess-form input:focus,
+.addmess-form select:focus,
+.addmess-form textarea:focus {
+  border-color: #2563eb;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+/* ====== Row Inputs ====== */
+.form-row {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.form-row input,
+.form-row select {
+  flex: 1;
+  min-width: 150px;
+}
+
+/* ====== Menu Section ====== */
+.menu-section {
+  margin-top: 20px;
+  background: #f1f5f9;
+  padding: 18px;
+  border-radius: 15px;
+  border: 1px solid #e2e8f0;
+}
+
+.menu-section h4 {
+  font-size: 1.2rem;
+  color: #1e3a8a;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.menu-item-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.menu-item-row input,
+.menu-item-row select {
+  flex: 1 1 calc(50% - 10px);
+  background: #fff;
+}
+
+.addmess-form button[type="button"] {
+  align-self: flex-start;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px dashed #60a5fa;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.addmess-form button[type="button"]:hover {
+  background: #bae6fd;
+  color: #075985;
+}
+
+/* ====== File Inputs ====== */
+.addmess-form input[type="file"] {
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  padding: 4px 0;
+}
+
+/* ====== Submit Button ====== */
+.submit-btn {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 13px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 12px;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(90deg, #1d4ed8, #1e40af);
+  transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ====== Message Styles ====== */
+.success-msg,
+.error-msg {
+  margin-top: 15px;
+  text-align: center;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.success-msg {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.error-msg {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* ====== Animations ====== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 640px) {
+  .addmess-wrapper {
+    padding: 25px 20px;
+  }
+
+  .menu-item-row {
+    flex-direction: column;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+}
+
 }
