@@ -1,3 +1,7 @@
+// ============================================================
+// 🚀 MESSMATE BACKEND SERVER
+// ============================================================
+
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -57,7 +61,7 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// ✅ Static file serving (uploads folder)
+// ✅ Serve uploaded files
 app.use("/uploads", express.static(uploadsDir));
 
 // ✅ Simple Logger
@@ -86,10 +90,13 @@ import ownerStatsRoutes from "./routes/ownerStatsRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import adminExtraRoutes from "./routes/adminExtraRoutes.js";
 
+// 🚴 Delivery Module (New)
+import deliveryRoutes from "./routes/deliveryRoutes.js"; // ✅ New Import
+
 // 🧪 Testing
 import testRoutes from "./routes/testRoutes.js";
 
-// ✅ Register routes
+// ✅ Register all routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messes", messRoutes);
@@ -101,6 +108,9 @@ app.use("/api/owner", ownerStatsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin-extra", adminExtraRoutes);
 app.use("/api/test", testRoutes);
+
+// ✅ New Delivery Agent Routes
+app.use("/api/admin", deliveryRoutes); // ⚡️ Mounted with same prefix for admin dashboard access
 
 // ============================================================
 // 🧠 GLOBAL ERROR HANDLER
@@ -138,7 +148,7 @@ app.listen(PORT, () => {
   console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
 });
 
-// Graceful shutdown handler
+// 🧹 Graceful shutdown handler
 process.on("SIGTERM", () => {
   console.log("🛑 Server shutting down...");
   process.exit(0);

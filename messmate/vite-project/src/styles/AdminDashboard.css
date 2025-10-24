@@ -932,6 +932,40 @@
 .reject-btn:hover {
   background-color: #d32f2f;
 }
+.table-section h2 {
+  margin-bottom: 10px;
+  color: #0077ff;
+}
+
+.status-badge.pending {
+  color: orange;
+  font-weight: 600;
+}
+.table-section h2 {
+  color: #0077ff;
+  margin-bottom: 10px;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.status-badge.approved {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
 
 }
 

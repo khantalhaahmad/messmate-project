@@ -16,12 +16,15 @@ import Signup from "./pages/Signup";
 import DashboardRouter from "./pages/DashboardRouter";
 import MessMenu from "./pages/MessMenu";
 import Checkout from "./pages/Checkout";
+import DeliveryJoin from "./pages/DeliveryJoin";
+import DeliveryPartners from "./pages/DeliveryPartners"; // ✅ Added: Info page for delivery program
 
 // Admin Pages
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminStudents from "./pages/AdminStudents";
 import AdminOwners from "./pages/AdminOwners";
 import AdminRevenueReport from "./pages/AdminRevenueReport";
+import AdminDeliveryAgents from "./pages/AdminDeliveryAgents";
 
 function App() {
   return (
@@ -43,6 +46,10 @@ function App() {
             {/* 🛒 Checkout */}
             <Route path="/checkout" element={<Checkout />} />
 
+            {/* 🚴 Delivery Partner Routes */}
+            <Route path="/delivery-partners" element={<DeliveryPartners />} /> {/* Info Page */}
+            <Route path="/delivery-join" element={<DeliveryJoin />} /> {/* Join Form */}
+
             {/* ➕ Add Mess (Only for Owners) */}
             <Route
               path="/addmess"
@@ -53,7 +60,7 @@ function App() {
               }
             />
 
-            {/* 🎯 Unified Dashboard (Student / Owner) */}
+            {/* 🎯 Unified Dashboard (Student / Owner / MessOwner) */}
             <Route
               path="/dashboard"
               element={
@@ -63,7 +70,7 @@ function App() {
               }
             />
 
-            {/* 🧑‍💼 ADMIN DASHBOARD */}
+            {/* 🧑‍💼 Admin Routes */}
             <Route
               path="/admin/dashboard"
               element={
@@ -73,7 +80,15 @@ function App() {
               }
             />
 
-            {/* 🎓 STUDENTS PAGE */}
+            <Route
+              path="/admin/delivery-agents"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminDeliveryAgents />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/admin/students"
               element={
@@ -83,7 +98,6 @@ function App() {
               }
             />
 
-            {/* 👨‍🍳 OWNERS PAGE */}
             <Route
               path="/admin/owners"
               element={
@@ -93,7 +107,6 @@ function App() {
               }
             />
 
-            {/* 📈 REVENUE REPORT */}
             <Route
               path="/admin/revenue-report"
               element={
@@ -103,7 +116,7 @@ function App() {
               }
             />
 
-            {/* 🚪 Fallback Route */}
+            {/* 🚪 Catch-all Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
 

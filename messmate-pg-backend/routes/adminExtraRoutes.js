@@ -6,6 +6,8 @@ import User from "../models/User.js";
 import MessRequest from "../models/MessRequest.js";
 import { verifyToken } from "../middleware/auth.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
+import DeliveryAgent from "../models/DeliveryAgent.js";
+
 
 const router = express.Router();
 
@@ -30,21 +32,34 @@ router.get("/daily-summary", verifyToken, adminMiddleware, async (req, res) => {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
+    // ✅ Total confirmed orders today
     const totalOrders = await Order.countDocuments({
       status: "confirmed",
       createdAt: { $gte: startOfDay },
     });
 
+    // ✅ Total revenue today
     const totalRevenueAgg = await Order.aggregate([
       { $match: { status: "confirmed", createdAt: { $gte: startOfDay } } },
       { $group: { _id: null, total: { $sum: "$total_price" } } },
     ]);
-
     const totalRevenue = totalRevenueAgg[0]?.total || 0;
+
+    // ✅ Count all user roles
     const totalOwners = await User.countDocuments({ role: "owner" });
     const totalStudents = await User.countDocuments({ role: "student" });
 
-    res.json({ totalOrders, totalRevenue, totalOwners, totalStudents });
+    // ✅ Count all delivery agents
+    const totalDeliveryAgents = await DeliveryAgent.countDocuments(); // <-- ADDED LINE
+
+    // ✅ Send complete summary response
+    res.json({
+      totalOrders,
+      totalRevenue,
+      totalOwners,
+      totalStudents,
+      totalDeliveryAgents, // <-- ADDED LINE
+    });
   } catch (err) {
     console.error("💥 Daily Summary Error:", err);
     res.status(500).json({ message: "Failed to fetch daily summary" });
@@ -347,5 +362,18 @@ router.put("/payout-status", verifyToken, adminMiddleware, async (req, res) => {
     });
   }
 });
+/* ============================================================
+   🚴‍♂️ 11. FETCH ALL DELIVERY AGENTS
+   ============================================================ */
+router.get("/delivery-agents", verifyToken, adminMiddleware, async (req, res) => {
+  try {
+    const agents = await DeliveryAgent.find().sort({ createdAt: -1 });
+    res.json(agents);
+  } catch (err) {
+    console.error("💥 Fetch Delivery Agents Error:", err);
+    res.status(500).json({ message: "Failed to fetch delivery agents" });
+  }
+});
+
 
 export default router;

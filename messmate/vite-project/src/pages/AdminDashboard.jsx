@@ -33,6 +33,8 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const config = { headers: { Authorization: `Bearer ${token}` } };
+  const [deliveryRequests, setDeliveryRequests] = useState([]);
+
 
   /* ============================================================
      🕒 Live Date & Time Update
@@ -100,6 +102,22 @@ const AdminDashboard = () => {
     fetchAllData();
   }, []);
 
+  // ============================================================
+// 🚴 Fetch Pending Delivery Requests
+// ============================================================
+useEffect(() => {
+  const fetchDeliveryRequests = async () => {
+    try {
+      const res = await api.get("/admin/delivery-requests", config);
+      setDeliveryRequests(res.data);
+    } catch (err) {
+      console.error("❌ Error fetching delivery requests:", err);
+    }
+  };
+  fetchDeliveryRequests();
+}, []);
+
+
   /* ============================================================
    💸 Update payout status
   ============================================================ */
@@ -114,6 +132,7 @@ const updatePayoutStatus = async (messName, payoutStatus) => {
         },
       }
     );
+    
 
     if (response.data.success) {
       alert(`✅ ${response.data.message}`);
@@ -145,6 +164,35 @@ const updatePayoutStatus = async (messName, payoutStatus) => {
       alert(`❌ Failed to ${action} request.`);
     }
   };
+  // ============================================================
+// ✅ Approve / Reject Delivery Request
+// ============================================================
+const handleApproveDelivery = async (id) => {
+  const generatedPassword = prompt("Enter password for new delivery agent:");
+  if (!generatedPassword) return;
+
+  try {
+    await api.post(`/admin/approve-delivery/${id}`, { generatedPassword });
+    alert("✅ Delivery Agent approved successfully!");
+    setDeliveryRequests((prev) => prev.filter((r) => r._id !== id));
+  } catch (err) {
+    console.error("❌ Error approving delivery agent:", err);
+    alert("Failed to approve delivery agent.");
+  }
+};
+
+const handleRejectDelivery = async (id) => {
+  if (!window.confirm("Are you sure you want to reject this request?")) return;
+  try {
+    await api.delete(`/admin/reject-delivery/${id}`);
+    alert("❌ Delivery Request Rejected!");
+    setDeliveryRequests((prev) => prev.filter((r) => r._id !== id));
+  } catch (err) {
+    console.error("❌ Error rejecting delivery request:", err);
+    alert("Failed to reject delivery request.");
+  }
+};
+
 
   /* ============================================================
      📊 Handle revenue report navigation
@@ -236,6 +284,14 @@ const updatePayoutStatus = async (messName, payoutStatus) => {
           <h3>🎓 Total Students</h3>
           <p>{summary.totalStudents}</p>
         </div>
+          <div
+    className="summary-card clickable"
+    onClick={() => navigate("/admin/delivery-agents")}
+  >
+    <h3>🚴‍♂️ Total Delivery Agents</h3>
+    <p>{summary.totalDeliveryAgents || 0}</p>
+  </div>
+
       </section>
 
       {/* ===== DATE FILTER ===== */}
@@ -412,6 +468,64 @@ const updatePayoutStatus = async (messName, payoutStatus) => {
     </tbody>
   </table>
 </section>
+{/* ===== PENDING DELIVERY REQUESTS ===== */}
+<section className="table-section">
+  <h2>🚴 Pending Delivery Agent Requests</h2>
+  <table className="earnings-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>City</th>
+        <th>Vehicle</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {deliveryRequests.length > 0 ? (
+        deliveryRequests.map((r, i) => (
+          <tr key={i}>
+            <td>{r.name}</td>
+            <td>{r.phone}</td>
+            <td>{r.email}</td>
+            <td>{r.city || "N/A"}</td>
+            <td>{r.vehicleType} ({r.vehicleNumber})</td>
+            <td>{r.date}</td>
+            <td>
+              <span className="status-badge pending">{r.status}</span>
+            </td>
+            <td>
+              <div className="action-btns">
+                <button
+                  className="btn-approve"
+                  onClick={() => handleApproveDelivery(r._id)}
+                >
+                  ✅ Approve
+                </button>
+                <button
+                  className="btn-reject"
+                  onClick={() => handleRejectDelivery(r._id)}
+                >
+                  ❌ Reject
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan="8" className="no-data">
+            No pending delivery requests
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</section>
+
 
       {/* ===== OWNER PAYOUTS (This Month) ===== */}
 <section className="table-section">

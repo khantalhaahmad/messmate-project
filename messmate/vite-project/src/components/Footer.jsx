@@ -1,11 +1,17 @@
-import { FaLinkedin, FaInstagram, FaYoutube, FaFacebook, FaXTwitter } from "react-icons/fa6";
+import {
+  FaLinkedin,
+  FaInstagram,
+  FaYoutube,
+  FaFacebook,
+  FaXTwitter,
+} from "react-icons/fa6";
 import "./Footer.css";
 
 export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-container">
-        {/* Brand with favicon */}
+        {/* 🔶 Brand Section */}
         <div className="footer-brand">
           <img
             src="/assets/messmate.png"
@@ -15,26 +21,34 @@ export default function Footer() {
           <h1>MessMate</h1>
         </div>
 
-        {/* For Messe's */}
-        <div>
-          <h2>For Messe's</h2>
+        {/* 🍱 For Messes */}
+        <div className="footer-column">
+          <h2>For Messe&apos;s</h2>
           <ul>
             <li><a href="#">Partner With Us</a></li>
             <li><a href="#">Apps For You</a></li>
           </ul>
         </div>
 
-        {/* For Delivery Partners */}
-        <div>
+        {/* 🚴 For Delivery Partners */}
+        <div className="footer-column">
           <h2>For Delivery Partners</h2>
           <ul>
-            <li><a href="#">Partner With Us</a></li>
-            <li><a href="#">Apps For You</a></li>
+            <li>
+  <a
+    href="/delivery-partners"
+    className="footer-link"
+  >
+    Partner With Us
+  </a>
+</li>
+
+            <li><a href="#" className="footer-link">Apps For You</a></li>
           </ul>
         </div>
 
-        {/* Learn More */}
-        <div>
+        {/* 📚 Learn More */}
+        <div className="footer-column">
           <h2>Learn More</h2>
           <ul>
             <li><a href="#">Privacy</a></li>
@@ -47,18 +61,18 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Social Links */}
+      {/* 🌐 Social Links */}
       <div className="footer-social">
-        <a href="#"><FaLinkedin /></a>
-        <a href="#"><FaInstagram /></a>
-        <a href="#"><FaYoutube /></a>
-        <a href="#"><FaFacebook /></a>
-        <a href="#"><FaXTwitter /></a>
+        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><FaLinkedin /></a>
+        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram /></a>
+        <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><FaYoutube /></a>
+        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FaFacebook /></a>
+        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><FaXTwitter /></a>
       </div>
 
-      {/* Bottom Note */}
+      {/* ⚙️ Bottom Note */}
       <div className="footer-bottom">
-        © 2025 MessMate™ Ltd. All rights reserved.
+        © {new Date().getFullYear()} MessMate™ Ltd. All rights reserved.
       </div>
     </footer>
   );
