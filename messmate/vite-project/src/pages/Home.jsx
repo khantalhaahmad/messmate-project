@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import React, { useEffect, useState, useRef } from "react";
 import Hero from "../components/Hero";
 import BetterFood from "../components/BetterFood";
@@ -9,7 +8,6 @@ import Recommendations from "../components/Recommendations";
 import "../styles/Home.css";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
-import AddMessButton from "../components/AddMessButton";
 import FloatingButtons from "../components/FloatingButtons";
 
 const Home = () => {
@@ -38,7 +36,7 @@ const Home = () => {
     fetchMesses();
   }, []);
 
-  // ✅ Scroll listener (perfectly reliable)
+  // ✅ Hide floating buttons on scroll to Available Mess section
   useEffect(() => {
     const handleScroll = () => {
       if (!availableSectionRef.current) return;
@@ -46,7 +44,6 @@ const Home = () => {
       const sectionTop = availableSectionRef.current.offsetTop;
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
-      // Hide buttons when reaching Available Mess section
       if (scrollPosition >= sectionTop) {
         setShowFloatingButtons(false);
       } else {
@@ -55,12 +52,11 @@ const Home = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
-    handleScroll(); // call initially
+    handleScroll();
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ✅ Image mapping
   const imageMap = {
     Restro65: "restromess.png",
     "Green Garden": "greengarden.png",
@@ -74,10 +70,7 @@ const Home = () => {
   const getImagePath = (name) => `/assets/${imageMap[name] || imageMap.default}`;
 
   const handleViewMess = (mess) => {
-    if (!mess?.mess_id) {
-      console.warn("⚠️ Missing mess_id for:", mess);
-      return;
-    }
+    if (!mess?.mess_id) return;
     navigate(`/messes/id/${mess.mess_id}`);
   };
 
@@ -86,13 +79,8 @@ const Home = () => {
       <Hero />
       <BetterFood />
 
-      {/* 🟠 Floating Buttons appear only above Available Mess section */}
-      {showFloatingButtons && (
-        <>
-          <AddMessButton />
-          <FloatingButtons />
-        </>
-      )}
+      {/* 🟢 Only floating buttons (no AddMessButton now) */}
+      {showFloatingButtons && <FloatingButtons />}
 
       {/* 🏠 Available Mess Section */}
       <section className="mess-section" ref={availableSectionRef}>

@@ -7,7 +7,6 @@ import { CartProvider } from "./Context/CartContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AddMessForm from "./components/AddMessForm";
 import FloatingButtons from "./components/FloatingButtons";
-import AddMessButton from "./components/AddMessButton";
 
 // Pages
 import Home from "./pages/Home";
@@ -17,7 +16,8 @@ import DashboardRouter from "./pages/DashboardRouter";
 import MessMenu from "./pages/MessMenu";
 import Checkout from "./pages/Checkout";
 import DeliveryJoin from "./pages/DeliveryJoin";
-import DeliveryPartners from "./pages/DeliveryPartners"; // ✅ Added: Info page for delivery program
+import DeliveryPartners from "./pages/DeliveryPartners";
+import PartnerLanding from "./pages/PartnerLanding"; // ✅ Zomato-style landing page
 
 // Admin Pages
 import AdminDashboard from "./pages/AdminDashboard";
@@ -30,7 +30,7 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        {/* 🧭 Floating UI Elements (Global) */}
+        {/* 🌟 Floating Buttons (Global UI) */}
         <FloatingButtons />
 
         <main>
@@ -40,27 +40,21 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
 
-            {/* 🍱 Mess Menu (Student/Visitor) */}
+            {/* 🍱 Mess Menu */}
             <Route path="/messes/:mess_id" element={<MessMenu />} />
 
             {/* 🛒 Checkout */}
             <Route path="/checkout" element={<Checkout />} />
 
             {/* 🚴 Delivery Partner Routes */}
-            <Route path="/delivery-partners" element={<DeliveryPartners />} /> {/* Info Page */}
-            <Route path="/delivery-join" element={<DeliveryJoin />} /> {/* Join Form */}
+            <Route path="/delivery-partners" element={<DeliveryPartners />} />
+            <Route path="/delivery-join" element={<DeliveryJoin />} />
 
-            {/* ➕ Add Mess (Only for Owners) */}
-            <Route
-              path="/addmess"
-              element={
-                <ProtectedRoute allowedRoles={["owner"]}>
-                  <AddMessForm />
-                </ProtectedRoute>
-              }
-            />
+            {/* 🏢 Mess Partner Routes */}
+            <Route path="/partner-with-us" element={<PartnerLanding />} />
+            <Route path="/addmess" element={<AddMessForm />} /> {/* ✅ Direct form */}
 
-            {/* 🎯 Unified Dashboard (Student / Owner / MessOwner) */}
+            {/* 🎯 User Dashboard */}
             <Route
               path="/dashboard"
               element={
@@ -79,7 +73,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/admin/delivery-agents"
               element={
@@ -88,7 +81,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/admin/students"
               element={
@@ -97,7 +89,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/admin/owners"
               element={
@@ -106,7 +97,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/admin/revenue-report"
               element={
@@ -116,12 +106,9 @@ function App() {
               }
             />
 
-            {/* 🚪 Catch-all Fallback */}
+            {/* 🚪 Fallback Route */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-
-          {/* ✅ Floating Add Mess Button (Owners Only) */}
-          <AddMessButton />
         </main>
       </CartProvider>
     </AuthProvider>

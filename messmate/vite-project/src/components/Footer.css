@@ -1,96 +1,123 @@
 .footer {
-  background-color: #000;
-  color: #999;
-  padding: 40px 20px 30px;
-  font-family: Arial, sans-serif;
+  background-color: #0d0d0d;
+  color: #fff;
+  padding: 50px 100px 25px;
+  font-family: "Inter", sans-serif;
+  border-top: 1px solid #1a1a1a;
 }
 
-.footer-container {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr; /* ✅ brand now takes more space on the left */
-  gap: 30px;
-  max-width: 1200px;
-  margin: auto;
-  align-items: start;
-}
-
-/* ✅ Brand section - aligned left and moved up */
-.footer-brand {
+/* 🔶 Logo & Text Row */
+.footer-header {
   display: flex;
   align-items: center;
-  gap: 14px;
-  transform: translateY(-10px);
+  gap: 10px;
+  margin-bottom: 25px;
+  margin-left: 120px; /* move MessMate slightly right */
 }
 
 .footer-logo {
-  width: 50px;
-  height: 50px;
-  border-radius: 10px;
-  object-fit: cover;
-  transition: transform 0.3s ease;
+  width: 46px;
+  height: 46px;
 }
 
-.footer-logo:hover {
-  transform: scale(1.1);
-}
-
-.footer-brand h1 {
+.footer-title {
   font-size: 36px;
+  font-weight: 700;
   color: #fff;
-  font-weight: bold;
-  letter-spacing: 1px;
+  letter-spacing: 0.3px;
 }
 
-/* Section Titles */
-.footer h2 {
-  color: #fff;
+/* 📚 Footer Grid — move all to the right */
+.footer-grid {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 60px;
+  margin-left: 165px; /* align all sections under MessMate */
+  margin-bottom: 20px;
+}
+
+.footer-column {
+  min-width: 160px;
+}
+
+.footer-column h2 {
   font-size: 16px;
-  margin-bottom: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #fff;
 }
 
-/* Lists */
-.footer ul {
+.footer-column ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
-.footer ul li {
-  margin: 8px 0;
-}
-
-.footer ul li a {
+.footer-link {
+  color: #bfbfbf;
   text-decoration: none;
-  color: #999;
+  font-size: 14.5px;
+  display: block;
+  margin: 4px 0;
   transition: color 0.3s ease;
 }
 
-.footer ul li a:hover {
-  color: #fff;
+.footer-link:hover {
+  color: #ffffff;
 }
 
-/* Social Icons */
+/* 🌐 Social Links */
 .footer-social {
-  margin-top: 40px;
-  text-align: center;
-  font-size: 22px;
+  display: flex;
+  gap: 14px;
+  font-size: 20px;
+  margin-top: 6px;
 }
 
 .footer-social a {
-  margin: 0 12px;
-  color: #999;
-  transition: color 0.3s ease;
+  color: #bfbfbf;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .footer-social a:hover {
-  color: #fff;
+  color: #f4a261;
+  transform: scale(1.1);
 }
 
-/* Bottom Note */
+/* ⚙️ Copyright */
 .footer-bottom {
-  text-align: center;
-  margin-top: 25px;
+  border-top: 1px solid #1a1a1a;
+  text-align: left;
+  color: #999;
+  font-size: 13.5px;
   padding-top: 15px;
-  border-top: 1px solid #333;
-  font-size: 13px;
-  color: #666;
+  margin-left: 120px; /* same alignment as MessMate */
+}
+
+/* 📱 Responsive Layout */
+@media (max-width: 1000px) {
+  .footer {
+    padding: 40px 50px;
+  }
+
+  .footer-header {
+    justify-content: center;
+    margin-left: 0;
+  }
+
+  .footer-title {
+    font-size: 28px;
+  }
+
+  .footer-grid {
+    flex-direction: column;
+    margin-left: 0;
+    gap: 25px;
+  }
+
+  .footer-bottom {
+    text-align: center;
+    margin-left: 0;
+  }
 }
