@@ -1,12 +1,12 @@
-// server.js — FINAL PRODUCTION VERSION
+// ============================================================
+// 🚀 MESSMATE BACKEND SERVER
+// ============================================================
 
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
-import helmet from "helmet";
-import rateLimit from "express-rate-limit";
 import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 
@@ -24,7 +24,7 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Ensure uploads folder exists
+// ✅ Ensure uploads folder exists (auto-create if missing)
 const uploadsDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -32,24 +32,12 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // ============================================================
-// 🛡️ SECURITY & RATE LIMIT
-// ============================================================
-app.use(helmet());
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 200, // ⏱ 200 requests per 15 mins
-    message: "Too many requests from this IP, please try again later.",
-  })
-);
-
-// ============================================================
 // 🌐 CORS CONFIGURATION
 // ============================================================
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://messmate-frontendpart3.onrender.com", // ✅ your Render frontend URL
+  "https://messmate-frontendpart3.onrender.com", // ✅ production frontend
 ];
 
 app.use(
@@ -76,7 +64,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // ✅ Serve uploaded files
 app.use("/uploads", express.static(uploadsDir));
 
-// ✅ Simple request logger
+// ✅ Simple Logger
 app.use((req, res, next) => {
   console.log(`➡️ [${req.method}] ${req.originalUrl}`);
   next();
@@ -86,20 +74,29 @@ app.use((req, res, next) => {
 // 🚏 ROUTES
 // ============================================================
 
+// 🔐 Auth & Users
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/userRoutes.js";
+
+// 🍽️ Mess & Orders
 import messRoutes from "./routes/messRoutes.js";
 import orderRoutes from "./routes/OrderRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import messRequestRoutes from "./routes/messRequestRoutes.js";
+
+// 📊 Admin & Analytics
 import recommendationRoutes from "./routes/recommendationRoutes.js";
 import ownerStatsRoutes from "./routes/ownerStatsRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import adminExtraRoutes from "./routes/adminExtraRoutes.js";
-import deliveryRoutes from "./routes/deliveryRoutes.js";
+
+// 🚴 Delivery Module (New)
+import deliveryRoutes from "./routes/deliveryRoutes.js"; // ✅ New Import
+
+// 🧪 Testing
 import testRoutes from "./routes/testRoutes.js";
 
-// ✅ Mount all routes
+// ✅ Register all routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messes", messRoutes);
@@ -110,18 +107,13 @@ app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/owner", ownerStatsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin-extra", adminExtraRoutes);
-app.use("/api/admin", deliveryRoutes);
 app.use("/api/test", testRoutes);
 
-// ============================================================
-// 🩺 HEALTH CHECK
-// ============================================================
-app.get("/", (req, res) => {
-  res.send("✅ MessMate backend is running successfully on Render!");
-});
+// ✅ New Delivery Agent Routes
+app.use("/api/admin", deliveryRoutes); // ⚡️ Mounted with same prefix for admin dashboard access
 
 // ============================================================
-// 🧠 ERROR HANDLER
+// 🧠 GLOBAL ERROR HANDLER
 // ============================================================
 app.use((err, req, res, next) => {
   console.error("💥 Server Error:", err.stack || err.message);
@@ -140,15 +132,23 @@ app.use((err, req, res, next) => {
 });
 
 // ============================================================
+// 🩺 HEALTH CHECK ROUTE
+// ============================================================
+app.get("/", (req, res) => {
+  res.send("✅ MessMate backend is running successfully!");
+});
+
+// ============================================================
 // 🚀 START SERVER
 // ============================================================
 const PORT = process.env.PORT || 4000;
+
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
 });
 
-// 🧹 Graceful Shutdown
+// 🧹 Graceful shutdown handler
 process.on("SIGTERM", () => {
   console.log("🛑 Server shutting down...");
   process.exit(0);

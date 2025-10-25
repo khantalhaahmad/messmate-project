@@ -8,26 +8,25 @@ const isLocalhost =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
 
-// ✅ Auto-select backend URL (add `/api` prefix automatically)
+// ✅ Backend base URL
 const BASE_URL = isLocalhost
-  ? "http://localhost:4000/api" // 🧩 Local backend (with /api)
+  ? "http://localhost:4000/api" // 🧩 Local backend
   : import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api` // 🛰️ Render backend (with /api)
-  : "https://messmate-backend.onrender.com/api"; // fallback (with /api)
+  ? `${import.meta.env.VITE_API_URL}/api` // 🛰️ Render backend
+  : "https://messmate-backend.onrender.com/api"; // fallback
 
 // ============================================================
 // ⚙️ AXIOS INSTANCE SETUP
 // ============================================================
 const api = axios.create({
   baseURL: BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 15000, // ⏱ 15s timeout for safety
+  headers: { "Content-Type": "application/json" },
+  timeout: 15000, // ⏱ 15 seconds
+  withCredentials: false, // ⚠️ Keep false unless using cookies
 });
 
 // ============================================================
-// 🔐 ATTACH TOKEN TO EVERY REQUEST (if exists)
+// 🔐 ATTACH TOKEN TO EVERY REQUEST
 // ============================================================
 api.interceptors.request.use(
   (config) => {
@@ -39,19 +38,17 @@ api.interceptors.request.use(
 );
 
 // ============================================================
-// 🚨 GLOBAL ERROR HANDLER (Handle expired or invalid tokens)
+// 🚨 GLOBAL ERROR HANDLER
 // ============================================================
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Token expired → clear and redirect
     if (error.response?.status === 401) {
-      console.warn("🔒 Session expired or invalid token. Redirecting to login...");
+      console.warn("🔒 Session expired. Redirecting to login...");
       localStorage.removeItem("token");
       window.location.href = "/login";
     }
 
-    // Log detailed info in development
     if (isLocalhost) {
       console.error("❌ API Error:", {
         url: error.config?.url,
@@ -64,7 +61,4 @@ api.interceptors.response.use(
   }
 );
 
-// ============================================================
-// 🧾 EXPORT INSTANCE
-// ============================================================
 export default api;
