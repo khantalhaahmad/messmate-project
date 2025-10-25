@@ -82,7 +82,7 @@ import userRoutes from "./routes/userRoutes.js";
 import messRoutes from "./routes/messRoutes.js";
 import orderRoutes from "./routes/OrderRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
-import messRequestRoutes from "./routes/MessRequestRoutes.js";
+import messRequestRoutes from "./routes/messRequestRoutes.js";
 
 // 📊 Admin & Analytics
 import recommendationRoutes from "./routes/recommendationRoutes.js";
@@ -102,7 +102,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/messes", messRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
-app.use("/api/mess-requests", messRequestRoutes);
+app.use("/api/mess-request", messRequestRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/owner", ownerStatsRoutes);
 app.use("/api/admin", adminRoutes);

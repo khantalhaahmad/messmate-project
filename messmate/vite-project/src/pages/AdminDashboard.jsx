@@ -13,6 +13,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import Swal from "sweetalert2";
+
 
 const AdminDashboard = () => {
   const [summary, setSummary] = useState(null);
@@ -165,19 +167,70 @@ const updatePayoutStatus = async (messName, payoutStatus) => {
     }
   };
   // ============================================================
-// ✅ Approve / Reject Delivery Request
-// ============================================================
-const handleApproveDelivery = async (id) => {
-  const generatedPassword = prompt("Enter password for new delivery agent:");
-  if (!generatedPassword) return;
-
+/* ============================================================
+   ✅ Approve / Reject Mess Request (SweetAlert2 Version)
+  ============================================================ */
+const handleApprove = async (id) => {
   try {
-    await api.post(`/admin/approve-delivery/${id}`, { generatedPassword });
-    alert("✅ Delivery Agent approved successfully!");
-    setDeliveryRequests((prev) => prev.filter((r) => r._id !== id));
+    const res = await api.put(`/mess-request/${id}/approve`, {}, config);
+
+    if (res.data.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Mess Approved 🎉",
+        text: "Mess has been successfully added to the database!",
+        confirmButtonColor: "#28a745",
+      });
+
+      // ✅ Instantly remove from pending
+      setRequests((prev) => prev.filter((r) => r._id !== id));
+      // ✅ Add new mess to mess list
+      setMessList((prev) => [...prev, res.data.mess]);
+    }
   } catch (err) {
-    console.error("❌ Error approving delivery agent:", err);
-    alert("Failed to approve delivery agent.");
+    console.error("Approval error:", err);
+    Swal.fire({
+      icon: "error",
+      title: "Failed to Approve",
+      text: "Something went wrong while approving this mess.",
+    });
+  }
+};
+
+const handleReject = async (id) => {
+  try {
+    const confirm = await Swal.fire({
+      icon: "warning",
+      title: "Reject Mess Request?",
+      text: "This will permanently remove the request.",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Reject",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#e23744",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const res = await api.put(`/mess-request/${id}/reject`, {}, config);
+
+    if (res.data.success) {
+      Swal.fire({
+        icon: "info",
+        title: "Mess Request Rejected",
+        text: "This mess request has been removed.",
+        confirmButtonColor: "#e23744",
+      });
+
+      // ✅ Remove from UI
+      setRequests((prev) => prev.filter((r) => r._id !== id));
+    }
+  } catch (err) {
+    console.error("Rejection error:", err);
+    Swal.fire({
+      icon: "error",
+      title: "Failed to Reject",
+      text: "Something went wrong while rejecting this mess.",
+    });
   }
 };
 
@@ -411,48 +464,21 @@ const handleRejectDelivery = async (id) => {
             <td>{new Date(r.createdAt).toLocaleDateString()}</td>
             <td>
               <div className="action-btns">
-                <button
+           <button
   className="btn-approve"
-  onClick={async () => {
-    try {
-      const res = await api.put(`/mess-requests/${r._id}/approve`, {}, config);
-
-      if (res.data.success) {
-        const approvedMess = res.data.mess;
-        // ✅ Instantly add new mess to mess list (UI update)
-        setMessList((prev) => [...prev, approvedMess]);
-        // ✅ Remove from pending requests
-        setRequests((prev) => prev.filter((req) => req._id !== r._id));
-
-        // ✅ Visual success feedback
-        alert("✅ Mess Approved Successfully & added to list!");
-      } else {
-        alert(res.data.message || "Failed to approve mess request.");
-      }
-    } catch (err) {
-      console.error("❌ Error approving mess:", err);
-      alert("❌ Failed to approve mess request.");
-    }
-  }}
+  onClick={() => handleApprove(r._id)}
 >
   ✅ Approve
 </button>
 
+
                 <button
-                  className="btn-reject"
-                  onClick={async () => {
-                    try {
-                      await api.put(`/mess-requests/${r._id}/reject`, {}, config);
-                      alert("❌ Mess Request Rejected!");
-                      setRequests((prev) => prev.filter((req) => req._id !== r._id));
-                    } catch (err) {
-                      console.error("❌ Error rejecting mess:", err);
-                      alert("Failed to reject mess request.");
-                    }
-                  }}
-                >
-                  ❌ Reject
-                </button>
+  className="btn-reject"
+  onClick={() => handleReject(r._id)}
+>
+  ❌ Reject
+</button>
+
               </div>
             </td>
           </tr>

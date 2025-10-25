@@ -40,7 +40,7 @@ const DeliveryPartners = () => {
           <div className="image-wrapper">
             {/* ✅ Use your local image from public/assets (no import needed) */}
             <img
-              src="/assets/partner.png"
+              src="../assets/partner.png"
               alt="MessMate Delivery Partner Team"
               className="hero-image"
             />

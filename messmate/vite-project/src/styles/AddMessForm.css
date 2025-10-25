@@ -1,374 +1,303 @@
-/* ============================
-   🌟 Add Mess Page Styling
-   ============================ */
+/* =========================================
+   🧾 ZOMATO PARTNER-STYLE ADD MESS FORM (2025)
+   ========================================= */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
-.addmess-page {
+:root {
+  --primary: #e23744; /* Zomato Red */
+  --primary-hover: #c41f2b;
+  --text-dark: #1e293b;
+  --text-muted: #475569;
+  --border: #e2e8f0;
+  --white: #ffffff;
+  --light-bg: #f8fafc;
+  --card-bg: #ffffff;
+  --shadow: 0 6px 25px rgba(0, 0, 0, 0.05);
+  --radius: 12px;
+}
+
+/* ===========================
+   🌐 Global Layout
+=========================== */
+body {
+  font-family: "Inter", sans-serif;
+  background: var(--light-bg);
+  color: var(--text-dark);
+}
+
+.zomato-addmess {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f5f7fa, #e8ecf5);
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 40px 20px;
-  font-family: "Inter", sans-serif;
+  align-items: flex-start;
+  padding: 60px 30px;
 }
 
-.addmess-wrapper {
-  background: #fff;
-  padding: 2.5rem 3rem;
-  border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 680px;
-  animation: fadeInUp 0.5s ease-in-out;
-}
-
-.addmess-title {
-  font-size: 1.9rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: #1e3a8a;
-  letter-spacing: 0.5px;
-}
-
-/* ============================
-   🌈 Form Styling
-   ============================ */
-
-.addmess-form {
+/* ===========================
+   🧱 Main Form Container
+=========================== */
+.zomato-form-container {
   display: flex;
-  flex-direction: column;
+  width: 100%;
+  max-width: 1200px;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* ===========================
+   🧭 Sidebar (Vertical Stepper)
+=========================== */
+.zomato-sidebar {
+  background: #f1f5f9;
+  width: 320px;
+  border-right: 1px solid var(--border);
+  padding: 40px 30px;
+}
+
+.zomato-sidebar h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 35px;
+}
+
+.zomato-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+
+/* vertical line */
+.zomato-sidebar ul::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background: #d1d5db;
+  z-index: 0;
+}
+
+/* step items */
+.zomato-sidebar li {
+  position: relative;
+  margin-bottom: 30px;
+  padding-left: 50px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: default;
+}
+
+/* circle bullet */
+.zomato-sidebar li::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  background: #fff;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+/* active circle */
+.zomato-sidebar li.active::before {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+/* completed steps */
+.zomato-sidebar li.completed::before {
+  background: #22c55e;
+  border-color: #22c55e;
+}
+
+.zomato-sidebar li.completed {
+  color: #22c55e;
+}
+
+/* active text */
+.zomato-sidebar li.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.zomato-sidebar li:last-child {
+  margin-bottom: 0;
+}
+
+/* ===========================
+   🧾 Main Form Area
+=========================== */
+.zomato-main-form {
+  flex: 1;
+  padding: 50px 70px;
+  background: var(--light-bg);
+}
+
+.step-section {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.step-section h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: var(--text-dark);
+}
+
+/* ===========================
+   🧩 Input Cards (Zomato style)
+=========================== */
+.form-card {
+  background: var(--card-bg);
+  padding: 25px 30px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 25px;
+  box-shadow: var(--shadow);
+}
+
+.form-card h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: var(--text-dark);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 18px;
 }
 
-.addmess-form label {
-  font-weight: 600;
-  color: #2e2e2e;
-  font-size: 0.95rem;
-  margin-bottom: 4px;
-}
-
-.addmess-form input,
-.addmess-form select,
-.addmess-form textarea {
+input,
+select,
+textarea {
   width: 100%;
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1.5px solid #cbd5e1;
-  outline: none;
-  font-size: 0.95rem;
-  background: #f9fafb;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  font-size: 1rem;
   transition: all 0.2s ease;
 }
 
-.addmess-form input:focus,
-.addmess-form select:focus,
-.addmess-form textarea:focus {
-  border-color: #3b82f6;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-
-.addmess-form input[type="file"] {
-  border: none;
-  background: none;
-  padding: 0;
-}
-
-/* ============================
-   🍽️ Menu Items Section
-   ============================ */
-
-.menu-item-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  background: #f1f5f9;
-  padding: 12px 15px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  border: 1px solid #dbe3ef;
-}
-
-.menu-item-row input,
-.menu-item-row select {
-  flex: 1 1 calc(50% - 10px);
-  min-width: 150px;
-  background: #fff;
-}
-
-.menu-item-row input::placeholder {
-  color: #94a3b8;
-}
-
-.addmess-form button[type="button"] {
-  align-self: flex-start;
-  background: #e0f2fe;
-  color: #0369a1;
-  border: 1px dashed #60a5fa;
-  font-size: 0.9rem;
-  padding: 8px 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.addmess-form button[type="button"]:hover {
-  background: #bae6fd;
-  color: #075985;
-}
-
-/* ============================
-   🚀 Submit Button
-   ============================ */
-
-.submit-btn {
-  margin-top: 1rem;
-  background: #2563eb;
-  color: white;
-  font-size: 1rem;
-  padding: 12px 0;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-.submit-btn:hover {
-  background: #1d4ed8;
-  transform: translateY(-1px);
-}
-
-.submit-btn:disabled {
-  background: #94a3b8;
-  cursor: not-allowed;
-}
-
-/* ============================
-   💬 Message Styles
-   ============================ */
-
-.success-msg,
-.error-msg {
-  text-align: center;
-  font-weight: 600;
-  margin-top: 1rem;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.success-msg {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.error-msg {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-/* ============================
-   ✨ Animations
-   ============================ */
-
-@keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ============================
-   📱 Responsive Design
-   ============================ */
-
-@media (max-width: 600px) {
-  .addmess-wrapper {
-    padding: 1.5rem 1.2rem;
-  }
-
-  .menu-item-row {
-    flex-direction: column;
-  }
-
-  .addmess-form button[type="button"] {
-    width: 100%;
-    text-align: center;
-  }
-  /* ================================
-   🌟 Add Mess Page Modern Design
-   ================================ */
-
-.addmess-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(180deg, #f8fafc, #eef2ff);
-  padding: 50px 20px;
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
-/* ====== Form Card ====== */
-.addmess-wrapper {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 40px 50px;
-  width: 100%;
-  max-width: 750px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
-  animation: fadeIn 0.6s ease-in-out;
-}
-
-.addmess-wrapper h2 {
-  font-size: 2rem;
-  color: #1e293b;
-  text-align: center;
-  font-weight: 700;
-  margin-bottom: 25px;
-}
-
-/* ====== Inputs & Select ====== */
-.addmess-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.addmess-form label {
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 6px;
-  display: block;
-  font-size: 0.95rem;
-}
-
-.addmess-form input,
-.addmess-form select,
-.addmess-form textarea {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1.8px solid #d1d5db;
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(226, 55, 68, 0.15);
   outline: none;
-  background: #f9fafb;
-  font-size: 1rem;
-  transition: all 0.25s ease;
 }
 
-.addmess-form input:focus,
-.addmess-form select:focus,
-.addmess-form textarea:focus {
-  border-color: #2563eb;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-}
-
-/* ====== Row Inputs ====== */
-.form-row {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-}
-
-.form-row input,
-.form-row select {
-  flex: 1;
-  min-width: 150px;
-}
-
-/* ====== Menu Section ====== */
-.menu-section {
-  margin-top: 20px;
-  background: #f1f5f9;
-  padding: 18px;
-  border-radius: 15px;
-  border: 1px solid #e2e8f0;
-}
-
-.menu-section h4 {
-  font-size: 1.2rem;
-  color: #1e3a8a;
-  margin-bottom: 12px;
-  font-weight: 700;
-}
-
+/* ===========================
+   🍱 Menu Section
+=========================== */
 .menu-item-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 15px;
 }
 
 .menu-item-row input,
 .menu-item-row select {
   flex: 1 1 calc(50% - 10px);
-  background: #fff;
 }
 
-.addmess-form button[type="button"] {
-  align-self: flex-start;
-  padding: 8px 14px;
-  font-size: 0.9rem;
-  border-radius: 8px;
-  background: #e0f2fe;
-  color: #0369a1;
-  border: 1px dashed #60a5fa;
+button.add-dish-btn {
+  background: #fff5f5;
+  color: var(--primary);
+  border: 1px dashed var(--primary);
+  font-weight: 600;
+  border-radius: var(--radius);
+  padding: 8px 16px;
   cursor: pointer;
-  font-weight: 500;
   transition: 0.3s;
 }
 
-.addmess-form button[type="button"]:hover {
-  background: #bae6fd;
-  color: #075985;
+button.add-dish-btn:hover {
+  background: #ffe4e4;
 }
 
-/* ====== File Inputs ====== */
-.addmess-form input[type="file"] {
+/* ===========================
+   📤 File Upload
+=========================== */
+input[type="file"] {
   border: none;
   background: transparent;
   font-size: 0.95rem;
-  padding: 4px 0;
+  margin-top: 6px;
 }
 
-/* ====== Submit Button ====== */
-.submit-btn {
-  background: linear-gradient(90deg, #2563eb, #1d4ed8);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 13px 0;
-  font-size: 1rem;
+/* ===========================
+   🔘 Navigation Buttons
+=========================== */
+.next-btn,
+.submit-btn,
+.back-btn {
+  padding: 12px 28px;
   font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: 0.3s;
-  margin-top: 12px;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.next-btn {
+  background: var(--primary);
+  color: #fff;
+}
+
+.next-btn:hover {
+  background: var(--primary-hover);
+}
+
+.back-btn {
+  background: #e2e8f0;
+  color: var(--text-dark);
+}
+
+.back-btn:hover {
+  background: #cbd5e1;
+}
+
+.submit-btn {
+  background: var(--primary);
+  color: #fff;
+  width: 100%;
+  padding: 15px 0;
+  font-size: 1.1rem;
 }
 
 .submit-btn:hover {
-  background: linear-gradient(90deg, #1d4ed8, #1e40af);
-  transform: translateY(-1px);
+  background: var(--primary-hover);
 }
 
-.submit-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
 }
 
-/* ====== Message Styles ====== */
+/* ===========================
+   💬 Messages
+=========================== */
 .success-msg,
 .error-msg {
   margin-top: 15px;
-  text-align: center;
   padding: 12px;
-  border-radius: 10px;
+  border-radius: var(--radius);
+  text-align: center;
   font-weight: 600;
 }
 
@@ -382,11 +311,13 @@
   color: #991b1b;
 }
 
-/* ====== Animations ====== */
+/* ===========================
+   ✨ Animations
+=========================== */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(25px);
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
@@ -394,19 +325,389 @@
   }
 }
 
-/* ====== Responsive ====== */
-@media (max-width: 640px) {
-  .addmess-wrapper {
-    padding: 25px 20px;
-  }
-
-  .menu-item-row {
+/* ===========================
+   📱 Responsive Design
+=========================== */
+@media (max-width: 992px) {
+  .zomato-form-container {
     flex-direction: column;
   }
 
-  .form-row {
+  .zomato-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .zomato-main-form {
+    padding: 30px 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .submit-btn {
+    font-size: 1rem;
+  }
+}
+
+/* ===========================
+   🌟 Subtle Input Placeholder
+=========================== */
+::placeholder {
+  color: #94a3b8;
+}
+
+/* ===========================
+   🧭 Step Timeline Completion
+=========================== */
+.zomato-sidebar li.active::after {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: 20px;
+  bottom: 0;
+  width: 2px;
+  background: var(--primary);
+  z-index: 0;
+}
+/* 🌟 Page Container */
+.addmess-page {
+  background-color: #f8f9fb;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 0;
+  font-family: "Inter", "Poppins", sans-serif;
+}
+
+/* 🧭 Main Container */
+.addmess-container {
+  display: flex;
+  width: 90%;
+  max-width: 1200px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* ========================= */
+/* 🧭 LEFT SIDEBAR (Progress) */
+/* ========================= */
+.onboarding-sidebar {
+  background: #f5f6fa;
+  width: 320px;
+  padding: 40px 24px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.onboarding-sidebar h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 40px;
+}
+
+.onboarding-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+
+.onboarding-sidebar ul::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12px;
+  width: 2px;
+  height: 100%;
+  background: #e5e7eb;
+}
+
+.onboarding-sidebar li {
+  position: relative;
+  padding: 15px 20px 15px 40px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #64748b;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.onboarding-sidebar li::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #d1d5db;
+  border: 3px solid #fff;
+  transition: 0.3s;
+}
+
+.onboarding-sidebar li.active {
+  color: #1e293b;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.onboarding-sidebar li.active::before {
+  background: #ef4444;
+}
+
+.onboarding-sidebar li.done {
+  color: #1e293b;
+}
+
+.onboarding-sidebar li.done::before {
+  background: #10b981;
+}
+
+/* ========================= */
+/* 🧾 RIGHT FORM AREA */
+/* ========================= */
+.onboarding-form {
+  flex: 1;
+  padding: 40px 50px;
+  background: #fff;
+}
+
+.form-step h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 24px;
+}
+
+.form-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+}
+
+.form-card h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+/* 🧩 Grid layout for inputs */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 18px;
+}
+
+input,
+select,
+textarea {
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 15px;
+  background: #fff;
+  outline: none;
+  transition: 0.2s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Menu Item Rows */
+.menu-item-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* + Add Another Dish Button */
+.add-dish-btn {
+  border: 1.5px dashed #ef4444;
+  background: transparent;
+  color: #ef4444;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 12px;
+}
+
+.add-dish-btn:hover {
+  background: #fef2f2;
+}
+
+/* Navigation Buttons */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.next-btn,
+.back-btn,
+.submit-btn {
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.3s ease;
+}
+
+.next-btn {
+  background: #ef4444;
+  color: #fff;
+  padding: 12px 30px;
+}
+
+.next-btn:hover {
+  background: #dc2626;
+}
+
+.back-btn {
+  background: #f1f5f9;
+  color: #334155;
+  padding: 12px 24px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.back-btn:hover {
+  background: #e2e8f0;
+}
+
+/* Submit Button */
+.submit-btn {
+  background: #ef4444;
+  color: #fff;
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  margin-top: 10px;
+  font-size: 17px;
+}
+
+.submit-btn:hover {
+  background: #dc2626;
+}
+
+/* Success and Error Messages */
+.success-msg {
+  color: #16a34a;
+  font-weight: 500;
+  margin-top: 12px;
+}
+
+.error-msg {
+  color: #dc2626;
+  font-weight: 500;
+  margin-top: 12px;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .addmess-container {
     flex-direction: column;
   }
+
+  .onboarding-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .onboarding-form {
+    padding: 24px;
+  }
+  /* 🌟 Upload Section Styling */
+.upload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.upload-box label {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.upload-container {
+  position: relative;
+}
+
+.upload-container input[type="file"] {
+  display: none;
+}
+
+.upload-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 110px;
+  border: 2px dashed #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: 0.3s;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.upload-label:hover {
+  background: #fff;
+  border-color: #ef4444;
+  color: #ef4444;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+}
+
+/* 📄 Review Section */
+.review-section ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 16px;
+}
+
+.review-section li {
+  font-size: 15px;
+  color: #374151;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 4px;
+}
+
+/* Align buttons neatly */
+.review-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+}
+.swal2-confirm {
+  background-color: #e23744 !important;
+  border: none !important;
+}
+.swal2-title {
+  font-weight: 700 !important;
 }
 
 }

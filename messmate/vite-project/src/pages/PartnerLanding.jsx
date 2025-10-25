@@ -35,45 +35,82 @@ export default function PartnerLanding() {
         </div>
       </section>
 
-      {/* ⚡ MERGED INFO CARD */}
-      <section className="info-card-section">
-        <div className="info-card">
-          <div className="info-left">
-            <h2>Get started: It only takes 10 minutes</h2>
-            <p>
-              Please keep these documents and details ready for a smooth sign-up
-              process.
-            </p>
+    {/* ⚡ MERGED INFO CARD */}
+<section className="info-card-section">
+  <div className="info-card">
+    <div className="info-left">
+      <h2>Get started: It only takes 10 minutes</h2>
+      <p className="info-subtext">
+        Please keep these documents and details ready for a smooth sign-up process.
+      </p>
 
-            <ul className="info-list">
-              <li>✅ PAN card</li>
-              <li>
-                ✅ FSSAI license{" "}
-                <a
-                  href="https://foscos.fssai.gov.in/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Apply here
-                </a>
-              </li>
-              <li>✅ GST number (if applicable)</li>
-              <li>
-                ✅ Menu & food image <a href="#">Refer here</a>
-              </li>
-              <li>✅ Bank account details</li>
-            </ul>
-          </div>
-
-          <div className="info-right">
-            <img
-              src="/assets/messmate.png"
-              alt="MessMate Logo"
-              className="messmate-card-img"
-            />
+      <div className="docs-grid">
+        <div className="doc-item">
+          <span className="check">✅</span>
+          <div className="doc-text">
+            <strong>PAN card</strong>
           </div>
         </div>
-      </section>
+
+        <div className="doc-item">
+          <span className="check">✅</span>
+          <div className="doc-text">
+            <strong>GST number</strong>, if applicable
+          </div>
+        </div>
+
+        <div className="doc-item">
+          <span className="check">✅</span>
+          <div className="doc-text">
+            <strong>FSSAI license</strong>
+            <p className="doc-subtext">
+              Don’t have one?{" "}
+              <a
+                href="https://foscos.fssai.gov.in/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="link"
+              >
+                Apply here
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+
+        <div className="doc-item">
+          <span className="check">✅</span>
+          <div className="doc-text">
+            <strong>Menu and food image</strong>
+            <p className="doc-subtext">
+              What is a profile food image?{" "}
+              <a href="#" className="link">
+                Refer here
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+
+        <div className="doc-item">
+          <span className="check">✅</span>
+          <div className="doc-text">
+            <strong>Bank account details</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="info-right">
+      <img
+        src="/assets/messmate.png"
+        alt="MessMate Logo"
+        className="messmate-card-img"
+      />
+    </div>
+  </div>
+</section>
+
 
 
       
@@ -181,45 +218,59 @@ export default function PartnerLanding() {
 <section className="faq-section">
   <h2>Frequently Asked Questions</h2>
   <div className="faq">
-    <details>
+    <details open>
       <summary>
         What are the documents required to partner with MessMate?
       </summary>
-      <p>
-        You’ll need a PAN card, FSSAI license, bank details, and basic
-        mess information.
-      </p>
+      <div className="faq-answer">
+        <p>To ensure a smooth onboarding experience, please have the following documents ready:</p>
+        <ul>
+          <li><strong>PAN card:</strong> Only adult PAN cards are accepted.</li>
+          <li><strong>FSSAI license certificate:</strong> Apply or upload your existing license.</li>
+          <li><strong>Bank details:</strong> A copy of your cheque or passbook.</li>
+          <li><strong>Mess menu:</strong> Your daily or weekly menu details.</li>
+          <li><strong>Mess image:</strong> One clear food or mess image for display.</li>
+          <li><strong>Optional:</strong> GST certificate if applicable.</li>
+        </ul>
+      </div>
     </details>
 
     <details>
       <summary>
         How long does it take for my mess to go live after registration?
       </summary>
-      <p>Typically 24–48 hours after document verification.</p>
+      <div className="faq-answer">
+        <p>Typically 24–48 hours after document verification.</p>
+      </div>
     </details>
 
     <details>
       <summary>What is the commission after the first month?</summary>
-      <p>
-        We charge a small commission after your first free month to help
-        manage operations and logistics.
-      </p>
+      <div className="faq-answer">
+        <p>
+          We charge a small commission after your first free month to help
+          manage operations and logistics.
+        </p>
+      </div>
     </details>
 
     <details>
       <summary>How can I get help if I’m stuck during onboarding?</summary>
-      <p>
-        Contact us anytime at{" "}
-        <a href="mailto:partners@messmate.com">partners@messmate.com</a>.
-      </p>
+      <div className="faq-answer">
+        <p>
+          Contact us anytime at{" "}
+          <a href="mailto:partners@messmate.com">partners@messmate.com</a>.
+        </p>
+      </div>
     </details>
 
     <details>
       <summary>How do I receive my payouts?</summary>
-      <p>
-        Payments are directly credited to your registered bank account
-        weekly.
-      </p>
+      <div className="faq-answer">
+        <p>
+          Payments are directly credited to your registered bank account weekly.
+        </p>
+      </div>
     </details>
   </div>
 </section>
