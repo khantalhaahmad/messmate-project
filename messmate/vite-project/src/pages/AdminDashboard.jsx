@@ -166,86 +166,67 @@ const updatePayoutStatus = async (messName, payoutStatus) => {
       alert(`❌ Failed to ${action} request.`);
     }
   };
-  // ============================================================
-/* ============================================================
+  /* ============================================================
    ✅ Approve / Reject Mess Request (SweetAlert2 Version)
-  ============================================================ */
+   ============================================================ */
 const handleApprove = async (id) => {
-  try {
-    const res = await api.put(`/mess-request/${id}/approve`, {}, config);
+  const confirm = await Swal.fire({
+    icon: "question",
+    title: "Approve Mess Request?",
+    text: "This will move it to active Messes.",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Approve",
+    cancelButtonText: "Cancel",
+    confirmButtonColor: "#28a745",
+  });
 
+  if (!confirm.isConfirmed) return;
+
+  try {
+    const res = await api.put(`/admin-extra/mess-request/${id}/approve`, {}, config);
     if (res.data.success) {
       Swal.fire({
         icon: "success",
-        title: "Mess Approved 🎉",
-        text: "Mess has been successfully added to the database!",
-        confirmButtonColor: "#28a745",
+        title: "Approved!",
+        text: "Mess added successfully.",
       });
-
-      // ✅ Instantly remove from pending
       setRequests((prev) => prev.filter((r) => r._id !== id));
-      // ✅ Add new mess to mess list
       setMessList((prev) => [...prev, res.data.mess]);
     }
   } catch (err) {
     console.error("Approval error:", err);
-    Swal.fire({
-      icon: "error",
-      title: "Failed to Approve",
-      text: "Something went wrong while approving this mess.",
-    });
+    Swal.fire("Error", "Failed to approve mess.", "error");
   }
 };
 
 const handleReject = async (id) => {
+  const confirm = await Swal.fire({
+    icon: "warning",
+    title: "Reject Mess Request?",
+    text: "This will permanently delete the request.",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Reject",
+    cancelButtonText: "Cancel",
+    confirmButtonColor: "#e23744",
+  });
+
+  if (!confirm.isConfirmed) return;
+
   try {
-    const confirm = await Swal.fire({
-      icon: "warning",
-      title: "Reject Mess Request?",
-      text: "This will permanently remove the request.",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Reject",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#e23744",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    const res = await api.put(`/mess-request/${id}/reject`, {}, config);
-
+    const res = await api.put(`/admin-extra/mess-request/${id}/reject`, {}, config);
     if (res.data.success) {
       Swal.fire({
         icon: "info",
-        title: "Mess Request Rejected",
-        text: "This mess request has been removed.",
-        confirmButtonColor: "#e23744",
+        title: "Rejected!",
+        text: "Mess request removed successfully.",
       });
-
-      // ✅ Remove from UI
       setRequests((prev) => prev.filter((r) => r._id !== id));
     }
   } catch (err) {
     console.error("Rejection error:", err);
-    Swal.fire({
-      icon: "error",
-      title: "Failed to Reject",
-      text: "Something went wrong while rejecting this mess.",
-    });
+    Swal.fire("Error", "Failed to reject mess.", "error");
   }
 };
-
-const handleRejectDelivery = async (id) => {
-  if (!window.confirm("Are you sure you want to reject this request?")) return;
-  try {
-    await api.delete(`/admin/reject-delivery/${id}`);
-    alert("❌ Delivery Request Rejected!");
-    setDeliveryRequests((prev) => prev.filter((r) => r._id !== id));
-  } catch (err) {
-    console.error("❌ Error rejecting delivery request:", err);
-    alert("Failed to reject delivery request.");
-  }
-};
-
 
   /* ============================================================
      📊 Handle revenue report navigation

@@ -374,6 +374,51 @@ router.get("/delivery-agents", verifyToken, adminMiddleware, async (req, res) =>
     res.status(500).json({ message: "Failed to fetch delivery agents" });
   }
 });
+/* ============================================================
+   ✅ 12. APPROVE / REJECT MESS REQUEST
+   ============================================================ */
+router.put("/mess-request/:id/approve", verifyToken, adminMiddleware, async (req, res) => {
+  try {
+    const messReq = await MessRequest.findById(req.params.id);
+    if (!messReq)
+      return res.status(404).json({ success: false, message: "Mess request not found" });
 
+    const newMess = await Mess.create({
+      name: messReq.name,
+      location: messReq.location,
+      email: messReq.email,
+      mobile: messReq.mobile,
+      menu: messReq.menu,
+      price_range: messReq.price_range,
+      offer: messReq.offer,
+      menuPhoto: messReq.menuPhoto,
+      owner_id: messReq.owner_id,
+      status: "active",
+    });
 
+    await MessRequest.findByIdAndDelete(req.params.id);
+
+    console.log(`✅ Mess approved: ${newMess.name}`);
+    res.json({ success: true, message: "Mess approved successfully", mess: newMess });
+  } catch (error) {
+    console.error("Error approving mess:", error);
+    res.status(500).json({ success: false, message: "Server error approving mess" });
+  }
+});
+
+router.put("/mess-request/:id/reject", verifyToken, adminMiddleware, async (req, res) => {
+  try {
+    const messReq = await MessRequest.findById(req.params.id);
+    if (!messReq)
+      return res.status(404).json({ success: false, message: "Mess request not found" });
+
+    await MessRequest.findByIdAndDelete(req.params.id);
+    console.log(`❌ Mess rejected: ${messReq.name}`);
+
+    res.json({ success: true, message: "Mess request rejected and deleted" });
+  } catch (error) {
+    console.error("Error rejecting mess:", error);
+    res.status(500).json({ success: false, message: "Server error rejecting mess" });
+  }
+});
 export default router;
