@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import Hero from "../components/Hero";
 import BetterFood from "../components/BetterFood";
 import MessCard from "../components/MessCard";
-import Footer from "../components/Footer";
 import MessSearch from "../components/MessSearch";
 import Recommendations from "../components/Recommendations";
 import "../styles/Home.css";
@@ -28,7 +27,10 @@ const Home = () => {
         setMessData(messes);
         setFilteredData(messes);
       } catch (err) {
-        console.error("❌ Error fetching messes:", err.response?.data || err.message);
+        console.error(
+          "❌ Error fetching messes:",
+          err.response?.data || err.message
+        );
       } finally {
         setLoading(false);
       }
@@ -57,6 +59,7 @@ const Home = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // 🖼️ Image mapping
   const imageMap = {
     Restro65: "restromess.png",
     "Green Garden": "greengarden.png",
@@ -69,6 +72,7 @@ const Home = () => {
 
   const getImagePath = (name) => `/assets/${imageMap[name] || imageMap.default}`;
 
+  // 🔗 View Mess
   const handleViewMess = (mess) => {
     if (!mess?.mess_id) return;
     navigate(`/messes/id/${mess.mess_id}`);
@@ -79,7 +83,7 @@ const Home = () => {
       <Hero />
       <BetterFood />
 
-      {/* 🟢 Only floating buttons (no AddMessButton now) */}
+      {/* 🟢 Floating Buttons */}
       {showFloatingButtons && <FloatingButtons />}
 
       {/* 🏠 Available Mess Section */}
@@ -109,8 +113,8 @@ const Home = () => {
         )}
       </section>
 
+      {/* ✅ Removed <Footer /> here */}
       <Recommendations />
-      <Footer />
     </div>
   );
 };
