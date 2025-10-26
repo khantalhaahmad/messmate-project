@@ -1,45 +1,38 @@
-// server.js — FINAL PRODUCTION VERSION
-
+// server.js — Market-Launch Ready Version
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
 import helmet from "helmet";
+import compression from "compression";
 import rateLimit from "express-rate-limit";
 import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 
-// ============================================================
-// 🧠 LOAD ENV & CONNECT DATABASE
-// ============================================================
 dotenv.config();
 connectDB();
 
 const app = express();
 
 // ============================================================
-// 📁 PATH & DIRECTORY SETUP
+// 📁 PATH SETUP
 // ============================================================
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// ✅ Ensure uploads folder exists
 const uploadsDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log("📂 'uploads' folder created automatically ✅");
-}
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 // ============================================================
-// 🛡️ SECURITY & RATE LIMIT
+// 🛡️ SECURITY & PERFORMANCE
 // ============================================================
 app.use(helmet());
+app.use(compression());
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 200, // ⏱ 200 requests per 15 mins
-    message: "Too many requests from this IP, please try again later.",
+    max: 250,
+    message: "⏳ Too many requests, try again later.",
   })
 );
 
@@ -49,17 +42,15 @@ app.use(
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://messmate-frontendpart3.onrender.com", // ✅ your Render frontend URL
+  "https://messmate-frontendpart3.onrender.com",
+  process.env.FRONTEND_URL,
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      console.log("❌ Blocked by CORS:", origin);
-      return callback(new Error("Not allowed by CORS"));
+      if (!origin || allowedOrigins.includes(origin)) callback(null, true);
+      else callback(new Error("❌ Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
@@ -67,16 +58,11 @@ app.use(
   })
 );
 
-// ============================================================
-// ⚙️ MIDDLEWARE
-// ============================================================
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-// ✅ Serve uploaded files
 app.use("/uploads", express.static(uploadsDir));
 
-// ✅ Simple request logger
+// Logger
 app.use((req, res, next) => {
   console.log(`➡️ [${req.method}] ${req.originalUrl}`);
   next();
@@ -85,21 +71,18 @@ app.use((req, res, next) => {
 // ============================================================
 // 🚏 ROUTES
 // ============================================================
-
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/userRoutes.js";
 import messRoutes from "./routes/messRoutes.js";
 import orderRoutes from "./routes/OrderRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
-import messRequestRoutes from "./routes/messRequestRoutes.js";
+import messRequestRoutes from "./routes/MessRequestRoutes.js";
 import recommendationRoutes from "./routes/recommendationRoutes.js";
 import ownerStatsRoutes from "./routes/ownerStatsRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import adminExtraRoutes from "./routes/adminExtraRoutes.js";
 import deliveryRoutes from "./routes/deliveryRoutes.js";
-import testRoutes from "./routes/testRoutes.js";
 
-// ✅ Mount all routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messes", messRoutes);
@@ -110,32 +93,26 @@ app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/owner", ownerStatsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin-extra", adminExtraRoutes);
-app.use("/api/admin", deliveryRoutes);
-app.use("/api/test", testRoutes);
+app.use("/api/delivery", deliveryRoutes);
 
 // ============================================================
 // 🩺 HEALTH CHECK
 // ============================================================
 app.get("/", (req, res) => {
-  res.send("✅ MessMate backend is running successfully on Render!");
+  res.send("✅ MessMate backend live and healthy!");
 });
 
 // ============================================================
 // 🧠 ERROR HANDLER
 // ============================================================
 app.use((err, req, res, next) => {
-  console.error("💥 Server Error:", err.stack || err.message);
-
-  if (err.message === "Not allowed by CORS") {
-    return res.status(403).json({ message: "CORS policy: Access denied." });
+  console.error("💥 Server Error:", err.message);
+  if (err.message.includes("CORS")) {
+    return res.status(403).json({ message: "CORS policy blocked request." });
   }
-
   res.status(500).json({
     message: "Internal Server Error",
-    error:
-      process.env.NODE_ENV === "development"
-        ? err.message
-        : "An unexpected error occurred.",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined,
   });
 });
 
@@ -145,11 +122,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
-});
-
-// 🧹 Graceful Shutdown
-process.on("SIGTERM", () => {
-  console.log("🛑 Server shutting down...");
-  process.exit(0);
+  console.log(`🌍 Mode: ${process.env.NODE_ENV || "development"}`);
 });

@@ -2,7 +2,7 @@ import express from "express";
 import Review from "../models/Review.js";
 import Mess from "../models/Mess.js";
 import Order from "../models/Order.js";
-import authMiddleware from "./authMiddleware.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 

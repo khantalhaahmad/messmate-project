@@ -1,26 +1,15 @@
+// routes/messRequestRoutes.js
 import express from "express";
-import path from "path";
-import multer from "multer";
 import MessRequest from "../models/MessRequest.js";
 import Mess from "../models/Mess.js";
-import { verifyToken } from "../middleware/auth.js"; // ✅ Correct import
+import { verifyToken } from "../middleware/auth.js";
+import upload from "../middleware/uploadMiddleware.js";
+import cloudinary from "../config/cloudinary.js";
 
 const router = express.Router();
 
 /* ==============================================
-   🖼️ MULTER STORAGE
-   ============================================== */
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage });
-
-/* ==============================================
-   ✅ SUBMIT NEW MESS REQUEST
+   ✅ SUBMIT NEW MESS REQUEST (with Cloudinary Upload)
    ============================================== */
 router.post(
   "/",
@@ -33,37 +22,29 @@ router.post(
   ]),
   async (req, res) => {
     try {
-      const {
-        name,
-        location,
-        mobile,
-        email,
-        price_range,
-        offer,
-        menu,
-      } = req.body;
+      const { name, location, mobile, email, price_range, offer, menu } = req.body;
 
       if (!name || !location || !mobile || !email || !menu) {
-        return res.status(400).json({ message: "Missing required fields" });
+        return res.status(400).json({ success: false, message: "Missing required fields" });
       }
+
+      // ✅ Verify Cloudinary uploads
+      console.log("📸 Uploaded files:", req.files);
 
       let parsedMenu;
       try {
         parsedMenu = JSON.parse(menu);
-        if (!Array.isArray(parsedMenu.items))
-          throw new Error("Menu items missing");
+        if (!Array.isArray(parsedMenu.items)) throw new Error("Menu items missing");
       } catch (err) {
         console.error("Invalid menu JSON:", err.message);
-        return res.status(400).json({ message: "Invalid menu format" });
+        return res.status(400).json({ success: false, message: "Invalid menu format" });
       }
 
-      // 🧾 File paths
-      const pancardPath = req.files?.pancard?.[0]?.path || null;
-      const fssaiPath = req.files?.fssai?.[0]?.path || null;
-      const menuPhotoPath = req.files?.menuPhoto?.[0]?.path || null;
-      const bankDetailsPath = req.files?.bankDetails?.[0]?.path || null;
+      const pancardUrl = req.files?.pancard?.[0]?.path || "";
+      const fssaiUrl = req.files?.fssai?.[0]?.path || "";
+      const menuPhotoUrl = req.files?.menuPhoto?.[0]?.path || "";
+      const bankDetailsUrl = req.files?.bankDetails?.[0]?.path || "";
 
-      // ✅ Save mess request
       const messRequest = await MessRequest.create({
         name,
         location,
@@ -71,22 +52,24 @@ router.post(
         email,
         price_range,
         offer,
-        pancard: pancardPath,
-        fssai: fssaiPath,
-        menuPhoto: menuPhotoPath,
-        bankDetails: bankDetailsPath,
+        pancard: pancardUrl,
+        fssai: fssaiUrl,
+        menuPhoto: menuPhotoUrl,
+        bankDetails: bankDetailsUrl,
         menu: {
           items: parsedMenu.items.map((i) => ({
             name: i.name,
             price: Number(i.price) || 0,
-            image: i.image || "default-food.png",
+            image: i.image || "",
             description: i.description || "Delicious homemade food",
             isVeg: i.isVeg ?? true,
           })),
         },
-        owner_id: req.user.id, // ✅ use correct property
+        owner_id: req.user.id,
         status: "pending",
       });
+
+      console.log("✅ Mess request stored successfully:", messRequest._id);
 
       res.status(201).json({
         success: true,
@@ -105,7 +88,7 @@ router.post(
 );
 
 /* ==============================================
-   ✅ APPROVE REQUEST
+   ✅ APPROVE REQUEST (Admin Only)
    ============================================== */
 router.put("/:id/approve", verifyToken, async (req, res) => {
   try {
@@ -118,17 +101,8 @@ router.put("/:id/approve", verifyToken, async (req, res) => {
       "name email"
     );
 
-    if (!messRequest) {
-      return res.status(404).json({ message: "Request not found" });
-    }
+    if (!messRequest) return res.status(404).json({ message: "Request not found" });
 
-    if (!messRequest.menu?.items?.length) {
-      return res
-        .status(400)
-        .json({ message: "No menu items found for this mess." });
-    }
-
-    // ✅ Create new mess
     const newMess = await Mess.create({
       name: messRequest.name,
       location: messRequest.location,
@@ -146,9 +120,7 @@ router.put("/:id/approve", verifyToken, async (req, res) => {
       delivery_time: "30–40 mins",
     });
 
-    // ❌ Remove from request table
     await messRequest.deleteOne();
-
     res.status(200).json({
       success: true,
       message: "✅ Mess approved and added successfully!",
@@ -156,27 +128,19 @@ router.put("/:id/approve", verifyToken, async (req, res) => {
     });
   } catch (error) {
     console.error("💥 Error approving mess:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to approve mess request.",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: "Failed to approve mess request." });
   }
 });
 
 /* ==============================================
-   ❌ REJECT REQUEST
+   ❌ REJECT REQUEST (Admin Only)
    ============================================== */
 router.put("/:id/reject", verifyToken, async (req, res) => {
   try {
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Admins only." });
-    }
+    if (req.user.role !== "admin") return res.status(403).json({ message: "Admins only." });
 
     const messRequest = await MessRequest.findById(req.params.id);
-    if (!messRequest) {
-      return res.status(404).json({ message: "Request not found" });
-    }
+    if (!messRequest) return res.status(404).json({ message: "Request not found" });
 
     await messRequest.deleteOne();
 
@@ -185,11 +149,8 @@ router.put("/:id/reject", verifyToken, async (req, res) => {
       message: "❌ Mess request rejected and removed from database.",
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to reject request",
-      error: error.message,
-    });
+    console.error("💥 Error rejecting mess request:", error);
+    res.status(500).json({ success: false, message: "Failed to reject request" });
   }
 });
 

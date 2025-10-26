@@ -1,5 +1,5 @@
 import express from "express";
-import authMiddleware from "./authMiddleware.js"; // ✅ Correct path (authMiddleware is inside routes)
+import authMiddleware from "../middleware/authMiddleware.js"; // ✅ Correct path (authMiddleware is inside routes)
 import adminMiddleware from "../middleware/adminMiddleware.js"; // ✅ Correct path (adminMiddleware is inside middleware)
 import Order from "../models/Order.js";
 import Mess from "../models/Mess.js";
